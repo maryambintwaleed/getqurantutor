@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String // "PARENT" | "TUTOR"
+  createdAt DateTime @default(now())
+
+  tutorProfile TutorProfile?
+  requests     Request[]
+  sessions     Session[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model TutorProfile {
+  id      String  @id @default(cuid())
+  userId  String  @unique
+  bio     String  @default("")
+  city    String  @default("")
+  ranking Int     @default(5)
+  balance Float   @default(0) // credits
+  grades    String  @default("[]") // JSON array of student levels this tutor teaches
+  gender    String  @default("") // Male | Female — many families require a specific gender
+  languages String  @default("[]") // JSON: English, Urdu, Arabic, Bengali, Turkish...
+  country   String  @default("")
+  timezone  String  @default("")
+  ijazah    Boolean @default(false) // holds a certified ijazah / sanad
+  hafiz     Boolean @default(false) // has memorised the full Quran
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  services     TutorService[]
+  quotes       Quote[]
+  transactions WalletTransaction[]
+}
+
+model Service {
+  id          String  @id @default(cuid())
+  slug        String  @unique
+  name        String
+  description String  @default("")
+  emoji       String  @default("📚")
+  priceMin    Int     @default(10) // average hourly price range shown in wizard
+  priceMax    Int     @default(40)
+  grades      String  @default("[]") // JSON array of grades/standards offered
+  active      Boolean @default(true)
+
+  tutors   TutorService[]
+  requests Request[]
+}
+
+model TutorService {
+  id        String       @id @default(cuid())
+  tutorId   String
+  serviceId String
+  tutor     TutorProfile @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  service   Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([tutorId, serviceId])
+}
+
+model Request {
+  id         String   @id @default(cuid())
+  parentId   String?
+  parentName String
+  serviceId  String
+  answers    String // JSON: [{question, answer}]
+  grade       String  @default("") // student level
+  tutorGender String  @default("") // preferred teacher gender ("" = no preference)
+  details    String   @default("")
+  mode       String   @default("Online") // Online | In person
+  city       String   @default("")
+  urgent     Boolean  @default(false)
+  status     String   @default("OPEN") // OPEN | CLOSED
+  createdAt  DateTime @default(now())
+
+  parent  User?   @relation(fields: [parentId], references: [id])
+  service Service @relation(fields: [serviceId], references: [id])
+  quotes  Quote[]
+}
+
+model Quote {
+  id         String   @id @default(cuid())
+  requestId  String
+  tutorId    String
+  price      Float
+  message    String
+  sharePhone Boolean  @default(false)
+  status     String   @default("SENT") // SENT | WON | DECLINED
+  createdAt  DateTime @default(now())
+
+  request Request      @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  tutor   TutorProfile @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+
+  @@unique([requestId, tutorId])
+}
+
+model WalletTransaction {
+  id        String   @id @default(cuid())
+  tutorId   String
+  amount    Float // positive = top-up, negative = spend
+  type      String // TOPUP | QUOTE_FEE
+  note      String   @default("")
+  createdAt DateTime @default(now())
+
+  tutor TutorProfile @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+}
