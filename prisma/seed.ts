@@ -118,13 +118,21 @@ async function main() {
   }
   const tutorId = teacherIds["teacher@demo.com"];
 
-  // Admin account
+  // Admin account — override the credentials via env vars on any public deploy.
+  const adminEmail = process.env.ADMIN_EMAIL ?? "admin@getqurantutor.com";
+  const adminPassword = process.env.ADMIN_PASSWORD ?? "admin1234";
+  if (adminPassword === "admin1234") {
+    console.warn(
+      "⚠  Seeding the admin with the default password. Set ADMIN_EMAIL and " +
+        "ADMIN_PASSWORD before seeding anything reachable from the internet."
+    );
+  }
   await db.user.upsert({
-    where: { email: "admin@getqurantutor.com" },
-    update: { role: "ADMIN" },
+    where: { email: adminEmail },
+    update: { role: "ADMIN", password: hashPassword(adminPassword) },
     create: {
-      email: "admin@getqurantutor.com",
-      password: hashPassword("admin1234"),
+      email: adminEmail,
+      password: hashPassword(adminPassword),
       name: "Waleed Ansari",
       role: "ADMIN",
     },
