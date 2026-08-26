@@ -22,7 +22,7 @@ export default async function Home() {
       <section className="bg-gradient-to-br from-brand-900 via-brand-800 to-brand-600 px-4 py-20 text-center text-white">
         <div className="mx-auto max-w-3xl">
           <p className="mb-3 inline-block rounded-full bg-white/10 px-4 py-1 text-sm font-medium text-brand-100">
-            From the makers of the FABLEARNER reading method
+            Online Quran classes for families in the US, UK, Canada, Europe &amp; the Gulf
           </p>
           <h1 className="text-4xl font-bold leading-tight sm:text-5xl">
             Verified Quran teachers,
@@ -148,9 +148,10 @@ export default async function Home() {
       </section>
 
       <footer className="border-t border-slate-100 px-4 py-8 text-center text-sm text-slate-400">
-        GetQuranTutor by FABLEARNER · Connecting families with verified Quran teachers ·{" "}
-        <a href="https://fablearner.com" className="text-brand-600 hover:underline">
-          fablearner.com
+        © {new Date().getFullYear()} GetQuranTutor · Connecting families with verified Quran
+        teachers ·{" "}
+        <a href="https://getqurantutor.com" className="text-brand-600 hover:underline">
+          getqurantutor.com
         </a>
       </footer>
     </>
