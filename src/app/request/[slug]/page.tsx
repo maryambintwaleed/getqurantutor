@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import Wizard from "@/components/Wizard";
 import { db } from "@/lib/db";
 import { buildQuestions } from "@/lib/services";
@@ -8,6 +9,7 @@ export default async function RequestPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  await connection();
   const { slug } = await params;
   const service = await db.service.findUnique({ where: { slug } });
   if (!service || !service.active) notFound();

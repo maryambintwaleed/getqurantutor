@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { connection } from "next/server";
 import { ClipboardList, MessagesSquare, UserCheck, Star, ShieldCheck, Video, Users } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import ServiceSearch from "@/components/ServiceSearch";
 import { db } from "@/lib/db";
 
 export default async function Home() {
+  await connection(); // render per request so admin category changes appear immediately
   const services = await db.service.findMany({ where: { active: true } });
   const searchServices = services.map((s) => ({
     slug: s.slug,

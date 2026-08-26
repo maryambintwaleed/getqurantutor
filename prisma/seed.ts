@@ -1,13 +1,12 @@
-import path from "path";
+import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { SERVICES } from "../src/lib/services";
 import { randomBytes, scryptSync } from "crypto";
 
-const adapter = new PrismaBetterSqlite3({
-  url: path.join(__dirname, "dev.db"),
-});
-const db = new PrismaClient({ adapter });
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) throw new Error("DATABASE_URL is not set — add it to .env");
+const db = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
 
 function hashPassword(password: string): string {
   const salt = randomBytes(16).toString("hex");
