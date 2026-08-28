@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { createSession, destroySession, hashPassword, verifyPassword } from "@/lib/auth";
+import { claimPendingRequests } from "@/lib/pending";
 
 export type AuthState = { error?: string };
 
@@ -33,6 +34,10 @@ export async function register(_prev: AuthState, formData: FormData): Promise<Au
     },
   });
   await createSession(user.id);
+  if (role === "PARENT") {
+    const claimed = await claimPendingRequests(user.id);
+    if (claimed > 0) redirect("/requests"); // straight to the quotes they signed up for
+  }
   redirect(role === "TUTOR" ? "/pro/profile" : "/");
 }
 
@@ -46,6 +51,7 @@ export async function login(_prev: AuthState, formData: FormData): Promise<AuthS
     return { error: "Wrong email or password." };
   }
   await createSession(user.id);
+  if (user.role === "PARENT") await claimPendingRequests(user.id);
   redirect(
     next ||
       (user.role === "ADMIN"

@@ -14,6 +14,7 @@ async function requireAdmin() {
 
 function revalidateAdmin() {
   revalidatePath("/admin", "layout");
+  revalidatePath("/pro", "layout"); // credit adjustments show in the teacher sidebar
   revalidatePath("/");
 }
 

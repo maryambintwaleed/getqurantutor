@@ -59,6 +59,9 @@ export async function sendQuote(_prev: QuoteState, formData: FormData): Promise<
     }),
   ]);
 
+  // The balance lives in the dashboard layout, so revalidate the layout too —
+  // otherwise every screen keeps showing the pre-quote balance.
+  revalidatePath("/pro", "layout");
   redirect("/pro/quotes");
 }
 
@@ -127,4 +130,5 @@ export async function topUp(formData: FormData) {
     }),
   ]);
   revalidatePath("/pro/wallet");
+  revalidatePath("/pro", "layout");
 }

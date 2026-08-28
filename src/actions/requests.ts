@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { rememberPendingRequest } from "@/lib/pending";
 import { GRADE_QUESTION_TEXT, TUTOR_GENDER_QUESTION } from "@/lib/services";
 
 export async function createRequest(input: {
@@ -32,7 +33,7 @@ export async function createRequest(input: {
     input.urgent ||
     input.answers.some((a) => a.answer === "As soon as possible");
 
-  await db.request.create({
+  const created = await db.request.create({
     data: {
       parentId: user?.id ?? null,
       parentName: input.parentName || user?.name || "A parent",
@@ -46,6 +47,8 @@ export async function createRequest(input: {
       urgent,
     },
   });
+
+  if (!user) await rememberPendingRequest(created.id);
 
   redirect(user ? "/requests" : "/request-received");
 }
@@ -66,4 +69,5 @@ export async function acceptQuote(quoteId: string) {
     db.request.update({ where: { id: quote.requestId }, data: { status: "CLOSED" } }),
   ]);
   revalidatePath("/requests");
+  revalidatePath("/pro", "layout");
 }

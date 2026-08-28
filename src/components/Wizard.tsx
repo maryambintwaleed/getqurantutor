@@ -212,13 +212,21 @@ export default function Wizard({ service }: { service: WizardService }) {
         {/* Footer */}
         <div className="border-t border-slate-100 p-4">
           {question?.multi ? (
-            <button
-              onClick={continueMulti}
-              disabled={multiSelection.length === 0}
-              className="w-full rounded-xl bg-brand-600 py-3.5 font-semibold text-white transition hover:bg-brand-700 disabled:opacity-40"
-            >
-              Continue
-            </button>
+            <>
+              <button
+                onClick={continueMulti}
+                disabled={multiSelection.length === 0}
+                className="w-full rounded-xl bg-brand-600 py-3.5 font-semibold text-white transition hover:bg-brand-700 disabled:opacity-40"
+              >
+                Continue
+                {multiSelection.length > 0 && ` (${multiSelection.length} selected)`}
+              </button>
+              {multiSelection.length === 0 && (
+                <p className="mt-2 text-center text-xs text-slate-400">
+                  Choose at least one option — you can pick several.
+                </p>
+              )}
+            </>
           ) : isFinal ? (
             <button
               onClick={submit}
