@@ -95,17 +95,17 @@ export default function Wizard({ service }: { service: WizardService }) {
         <div className="relative border-b border-slate-100 px-6 py-4 text-center">
           <button
             onClick={back}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
+            className="absolute left-2 top-1/2 -translate-y-1/2 rounded-lg p-3 text-slate-400 hover:bg-slate-50 hover:text-slate-700"
             aria-label="Back"
           >
             <ChevronLeft size={22} />
           </button>
-          <h1 className="font-semibold text-slate-900">
+          <h1 className="px-12 font-semibold text-slate-900">
             {service.emoji} {service.name}
           </h1>
           <button
             onClick={() => router.push("/")}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-3 text-slate-400 hover:bg-slate-50 hover:text-slate-700"
             aria-label="Close"
           >
             <X size={22} />

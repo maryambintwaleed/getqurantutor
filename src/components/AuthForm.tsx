@@ -4,6 +4,14 @@ import { useActionState, useState } from "react";
 import Link from "next/link";
 import { login, register, type AuthState } from "@/actions/auth";
 
+/**
+ * Never hardcode demo credentials: anything in this file ships inside the
+ * public JavaScript bundle, rendered or not. The hint only exists where the
+ * environment supplies it — set NEXT_PUBLIC_DEMO_HINT locally, never in
+ * production.
+ */
+const DEMO_HINT = process.env.NEXT_PUBLIC_DEMO_HINT;
+
 export function LoginForm({ next }: { next?: string }) {
   const [state, action, pending] = useActionState<AuthState, FormData>(login, {});
   return (
@@ -36,10 +44,11 @@ export function LoginForm({ next }: { next?: string }) {
           Create an account
         </Link>
       </p>
-      <div className="rounded-xl bg-slate-50 p-3 text-center text-xs text-slate-500">
-        Demo accounts — teacher: <b>teacher@demo.com</b> · parent: <b>parent@demo.com</b> ·
-        password: <b>demo1234</b>
-      </div>
+      {DEMO_HINT && (
+        <div className="rounded-xl bg-slate-50 p-3 text-center text-xs text-slate-500">
+          Demo accounts — {DEMO_HINT}
+        </div>
+      )}
     </form>
   );
 }
