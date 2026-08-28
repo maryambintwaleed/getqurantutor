@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { SERVICES } from "../src/lib/services";
+import { seedCourses } from "./courses";
 import { randomBytes, scryptSync } from "crypto";
 
 const connectionString = process.env.DATABASE_URL;
@@ -17,24 +17,7 @@ function hashPassword(password: string): string {
 const hoursAgo = (h: number) => new Date(Date.now() - h * 60 * 60 * 1000);
 
 async function main() {
-  // Courses
-  const serviceIds: Record<string, string> = {};
-  for (const s of SERVICES) {
-    const data = {
-      name: s.name,
-      description: s.description,
-      emoji: s.emoji,
-      priceMin: s.priceMin,
-      priceMax: s.priceMax,
-      grades: JSON.stringify(s.grades),
-    };
-    const rec = await db.service.upsert({
-      where: { slug: s.slug },
-      update: data,
-      create: { slug: s.slug, ...data },
-    });
-    serviceIds[s.slug] = rec.id;
-  }
+  const serviceIds = await seedCourses(db);
 
   // Demo teachers
   const teachers = [

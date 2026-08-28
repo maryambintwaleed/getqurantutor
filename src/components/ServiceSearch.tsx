@@ -39,7 +39,7 @@ export default function ServiceSearch({ services }: { services: SearchService[] 
           }}
           onFocus={() => setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
-          placeholder="What does your child need help with?"
+          placeholder="What would you like to learn?"
           className="w-full px-3 py-4 text-slate-900 outline-none placeholder:text-slate-400"
         />
         <button
@@ -53,7 +53,12 @@ export default function ServiceSearch({ services }: { services: SearchService[] 
         <div className="absolute z-30 mt-2 w-full overflow-hidden rounded-2xl bg-white text-left shadow-xl">
           {matches.length === 0 && (
             <div className="px-4 py-3 text-sm text-slate-500">
-              No match — try “reading”, “phonics”, “English”…
+              {services.length === 0
+                ? "No courses are available yet."
+                : `No match — try ${services
+                    .slice(0, 3)
+                    .map((s) => `“${s.name.replace(/\s*\(.*\)$/, "")}”`)
+                    .join(", ")}…`}
             </div>
           )}
           {matches.map((s) => (
