@@ -2,9 +2,16 @@ import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { ALL_GRADES } from "@/lib/services";
 import { updateTutorGrades } from "@/actions/tutor";
+import SubmitButton from "@/components/SubmitButton";
+import SavedNotice from "@/components/SavedNotice";
 import ServiceToggle from "@/components/ServiceToggle";
 
-export default async function ServicesPage() {
+export default async function ServicesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ saved?: string }>;
+}) {
+  const { saved } = await searchParams;
   const user = await getCurrentUser();
   const profile = user!.tutorProfile!;
 
@@ -66,9 +73,12 @@ export default async function ServicesPage() {
               </label>
             ))}
           </div>
-          <button className="mt-4 rounded-full bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">
-            Save levels
-          </button>
+          <div className="mt-4">
+            <SubmitButton className="rounded-full bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-60">
+              Save levels
+            </SubmitButton>
+            {saved && <SavedNotice message="Levels saved" />}
+          </div>
         </form>
       </div>
     </>

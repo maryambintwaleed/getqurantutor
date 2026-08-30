@@ -37,7 +37,7 @@ export async function sendEmail({ to, subject, heading, body, cta }: Mail) {
     const res = await fetch(API, {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from, to, subject, html: template(heading, body, cta), text: [heading, ...body, cta?.href].filter(Boolean).join("\n\n") }),
+      body: JSON.stringify({ from, to, subject, html: renderEmail(heading, body, cta), text: [heading, ...body, cta?.href].filter(Boolean).join("\n\n") }),
     });
     if (!res.ok) {
       console.error(`[email failed] ${res.status} ${await res.text()}`);
@@ -51,7 +51,7 @@ export async function sendEmail({ to, subject, heading, body, cta }: Mail) {
   }
 }
 
-function template(heading: string, body: string[], cta?: { label: string; href: string }) {
+export function renderEmail(heading: string, body: string[], cta?: { label: string; href: string }) {
   const paragraphs = body
     .map((p) => `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#334155;">${p}</p>`)
     .join("");

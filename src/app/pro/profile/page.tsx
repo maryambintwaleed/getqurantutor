@@ -2,8 +2,15 @@ import { BadgeCheck } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 import { ALL_LANGUAGES } from "@/lib/services";
 import { updateTutorProfile } from "@/actions/tutor";
+import SubmitButton from "@/components/SubmitButton";
+import SavedNotice from "@/components/SavedNotice";
 
-export default async function ProfilePage() {
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ saved?: string }>;
+}) {
+  const { saved } = await searchParams;
   const user = await getCurrentUser();
   const profile = user!.tutorProfile!;
   const myLanguages = new Set<string>(JSON.parse(profile.languages || "[]"));
@@ -119,9 +126,10 @@ export default async function ProfilePage() {
           />
         </div>
 
-        <button className="rounded-full bg-brand-600 px-8 py-3 font-semibold text-white hover:bg-brand-700">
-          Save profile
-        </button>
+        <div>
+          <SubmitButton>Save profile</SubmitButton>
+          {saved && <SavedNotice message="Profile saved" />}
+        </div>
       </form>
     </>
   );

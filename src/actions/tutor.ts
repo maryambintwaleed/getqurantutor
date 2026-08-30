@@ -81,6 +81,7 @@ export async function toggleService(serviceId: string, enabled: boolean) {
   }
   revalidatePath("/pro/services");
   revalidatePath("/pro/opportunities");
+  redirect("/pro/services?saved=1");
 }
 
 export async function updateTutorGrades(formData: FormData) {
@@ -116,6 +117,7 @@ export async function updateTutorProfile(formData: FormData) {
   });
   revalidatePath("/pro/profile");
   revalidatePath("/pro/opportunities");
+  redirect("/pro/profile?saved=1");
 }
 
 export async function topUp(formData: FormData) {
