@@ -11,8 +11,9 @@ export default function RequestReceived() {
           <CheckCircle2 size={64} className="mx-auto text-green-500" />
           <h1 className="mt-6 text-2xl font-bold text-slate-900">Request received!</h1>
           <p className="mt-3 text-slate-500">
-            Verified teachers who match your level, timings and gender preference are being
-            notified now. Create a free account to compare the quotes they send you.
+            Teachers who match your level, timings and gender preference have been notified,
+            and we will email you as soon as one replies — usually within a few hours. Create a
+            free account to compare their quotes side by side.
           </p>
           <div className="mt-8 flex justify-center gap-3">
             <Link

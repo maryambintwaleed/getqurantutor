@@ -1,10 +1,12 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { rememberPendingRequest } from "@/lib/pending";
+import { notifyMatchingTeachers, notifyTeacherOfWin } from "@/lib/notify";
 import { GRADE_QUESTION_TEXT, TUTOR_GENDER_QUESTION } from "@/lib/services";
 
 export async function createRequest(input: {
@@ -12,6 +14,7 @@ export async function createRequest(input: {
   answers: { question: string; answer: string }[];
   details: string;
   parentName: string;
+  email: string;
   city: string;
   urgent: boolean;
 }) {
@@ -41,6 +44,7 @@ export async function createRequest(input: {
       answers: JSON.stringify(input.answers),
       grade: input.answers.find((a) => a.question === GRADE_QUESTION_TEXT)?.answer ?? "",
       tutorGender,
+      email: input.email.trim().toLowerCase(),
       details: input.details,
       mode,
       city: input.city,
@@ -49,6 +53,9 @@ export async function createRequest(input: {
   });
 
   if (!user) await rememberPendingRequest(created.id);
+
+  // Sent after the response, so a slow mail provider never delays the family.
+  after(() => notifyMatchingTeachers(created.id));
 
   redirect(user ? "/requests" : "/request-received");
 }
@@ -70,4 +77,5 @@ export async function acceptQuote(quoteId: string) {
   ]);
   revalidatePath("/requests");
   revalidatePath("/pro", "layout");
+  after(() => notifyTeacherOfWin(quoteId));
 }

@@ -1,10 +1,12 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { ALL_GRADES, ALL_LANGUAGES, QUOTE_FEE } from "@/lib/services";
+import { notifyFamilyOfQuote } from "@/lib/notify";
 
 async function requireTutor() {
   const user = await getCurrentUser();
@@ -41,7 +43,7 @@ export async function sendQuote(_prev: QuoteState, formData: FormData): Promise<
     return { error: `You need ${QUOTE_FEE} credits to send a quote. Top up your wallet.` };
   }
 
-  await db.$transaction([
+  const [quote] = await db.$transaction([
     db.quote.create({
       data: { requestId, tutorId: profile.id, price, message, sharePhone },
     }),
@@ -62,6 +64,7 @@ export async function sendQuote(_prev: QuoteState, formData: FormData): Promise<
   // The balance lives in the dashboard layout, so revalidate the layout too —
   // otherwise every screen keeps showing the pre-quote balance.
   revalidatePath("/pro", "layout");
+  after(() => notifyFamilyOfQuote(quote.id));
   redirect("/pro/quotes");
 }
 

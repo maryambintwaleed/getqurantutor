@@ -80,6 +80,7 @@ model Request {
   serviceId  String
   answers    String // JSON: [{question, answer}]
   grade       String  @default("") // student level
+  email       String  @default("") // family contact — how we tell them a quote arrived
   tutorGender String  @default("") // preferred teacher gender ("" = no preference)
   details    String   @default("")
   mode       String   @default("Online") // Online | In person

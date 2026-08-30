@@ -25,6 +25,7 @@ export default function Wizard({ service }: { service: WizardService }) {
   const [multiSelection, setMultiSelection] = useState<string[]>([]);
   const [details, setDetails] = useState("");
   const [parentName, setParentName] = useState("");
+  const [email, setEmail] = useState("");
   const [city, setCity] = useState("");
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState("");
@@ -72,6 +73,10 @@ export default function Wizard({ service }: { service: WizardService }) {
       setError("Please tell us your name.");
       return;
     }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) {
+      setError("Please enter an email address so we can send you the teachers' replies.");
+      return;
+    }
     setError("");
     startTransition(async () => {
       await createRequest({
@@ -82,6 +87,7 @@ export default function Wizard({ service }: { service: WizardService }) {
         })),
         details,
         parentName: parentName.trim(),
+        email: email.trim(),
         city: city.trim(),
         urgent: false,
       });
@@ -179,7 +185,8 @@ export default function Wizard({ service }: { service: WizardService }) {
             <>
               <h2 className="text-xl font-bold text-slate-900">Almost done!</h2>
               <p className="mt-1 text-sm text-slate-500">
-                Add a few details so teachers can send you an accurate quote.
+                Add a few details so teachers can send you an accurate quote. We will email
+                you as soon as a teacher replies.
               </p>
               <div className="mt-5 space-y-4">
                 <textarea
@@ -187,6 +194,14 @@ export default function Wizard({ service }: { service: WizardService }) {
                   onChange={(e) => setDetails(e.target.value)}
                   rows={4}
                   placeholder="Anything else the teacher should know? (age, past experience, specific surahs, timings…)"
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-brand-500"
+                />
+                <input
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  type="email"
+                  autoComplete="email"
+                  placeholder="Your email *"
                   className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-brand-500"
                 />
                 <div className="grid grid-cols-2 gap-3">
