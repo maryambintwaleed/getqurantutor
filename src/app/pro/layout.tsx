@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
+  ShieldCheck,
   UserCog,
   Inbox,
   FileText,
@@ -24,6 +25,10 @@ export default async function ProLayout({ children }: { children: React.ReactNod
 
   const profile = user.tutorProfile;
 
+  // Family requests contain children's details — nobody sees them until an
+  // admin has checked who the teacher is.
+  const approved = profile.status === "APPROVED";
+
   const serviceIds = (
     await db.tutorService.findMany({ where: { tutorId: profile.id } })
   ).map((ts) => ts.serviceId);
@@ -45,18 +50,27 @@ export default async function ProLayout({ children }: { children: React.ReactNod
           <Logo />
         </div>
         <nav className="mt-8 flex-1 space-y-1">
-          <ProNavLink href="/pro/opportunities" badge={openCount > 0}>
-            <Inbox size={19} />
-            Opportunities
-          </ProNavLink>
-          <ProNavLink href="/pro/quotes">
-            <FileText size={19} />
-            My Quotes
-          </ProNavLink>
-          <ProNavLink href="/pro/wins">
-            <Trophy size={19} />
-            My Wins
-          </ProNavLink>
+          {approved ? (
+            <>
+              <ProNavLink href="/pro/opportunities" badge={openCount > 0}>
+                <Inbox size={19} />
+                Opportunities
+              </ProNavLink>
+              <ProNavLink href="/pro/quotes">
+                <FileText size={19} />
+                My Quotes
+              </ProNavLink>
+              <ProNavLink href="/pro/wins">
+                <Trophy size={19} />
+                My Wins
+              </ProNavLink>
+            </>
+          ) : (
+            <ProNavLink href="/pro/verification">
+              <ShieldCheck size={19} />
+              Get verified
+            </ProNavLink>
+          )}
           <ProNavLink href="/pro/services">
             <BriefcaseBusiness size={19} />
             My Courses
@@ -65,10 +79,12 @@ export default async function ProLayout({ children }: { children: React.ReactNod
             <UserCog size={19} />
             My Profile
           </ProNavLink>
+          {approved && (
           <ProNavLink href="/pro/wallet">
             <Wallet size={19} />
             Balance: {profile.balance} credits
           </ProNavLink>
+          )}
 
           <div className="!mt-6 border-t border-slate-100 pt-4">
             <div className="flex items-center gap-3 px-3 py-2 text-sm text-slate-600">

@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Search, Phone, FileText } from "lucide-react";
 import { db } from "@/lib/db";
@@ -13,6 +14,7 @@ export default async function OpportunitiesPage({
   const { q = "", sort = "newest" } = await searchParams;
   const user = await getCurrentUser();
   const profile = user!.tutorProfile!;
+  if (profile.status !== "APPROVED") redirect("/pro/verification");
 
   const serviceIds = (
     await db.tutorService.findMany({ where: { tutorId: profile.id } })

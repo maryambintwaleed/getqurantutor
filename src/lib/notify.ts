@@ -100,3 +100,34 @@ export async function notifyTeacherOfWin(quoteId: string) {
 function escape(text: string) {
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
+
+/** Tells a teacher the outcome of their verification review. */
+export async function notifyVerificationResult(tutorId: string) {
+  const profile = await db.tutorProfile.findUnique({
+    where: { id: tutorId },
+    include: { user: true },
+  });
+  if (!profile) return;
+
+  const approved = profile.status === "APPROVED";
+  await sendEmail({
+    to: profile.user.email,
+    subject: approved ? "You are verified — start quoting" : "About your verification",
+    heading: approved ? "Your teaching profile is approved" : "We could not verify you yet",
+    body: approved
+      ? [
+          "Families looking for what you teach are now visible in your dashboard, and you can send quotes.",
+          profile.reviewNote ? escape(profile.reviewNote) : "",
+          "Answering quickly is the single biggest thing that wins students.",
+        ].filter(Boolean)
+      : [
+          profile.reviewNote
+            ? escape(profile.reviewNote)
+            : "We could not confirm your details from what was sent.",
+          "You can upload a new recording or ID and submit again.",
+        ],
+    cta: approved
+      ? { label: "See family requests", href: `${siteUrl()}/pro/opportunities` }
+      : { label: "Try again", href: `${siteUrl()}/pro/verification` },
+  });
+}

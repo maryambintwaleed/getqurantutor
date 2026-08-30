@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { ArrowDownLeft, ArrowUpRight, Wallet } from "lucide-react";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
@@ -10,6 +11,7 @@ const PACKS = [20, 50, 100];
 export default async function WalletPage() {
   const user = await getCurrentUser();
   const profile = user!.tutorProfile!;
+  if (profile.status !== "APPROVED") redirect("/pro/verification");
 
   const transactions = await db.walletTransaction.findMany({
     where: { tutorId: profile.id },

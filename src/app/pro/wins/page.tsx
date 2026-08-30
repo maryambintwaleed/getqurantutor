@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Trophy } from "lucide-react";
 import { db } from "@/lib/db";
@@ -7,6 +8,7 @@ import { timeAgo } from "@/lib/format";
 export default async function WinsPage() {
   const user = await getCurrentUser();
   const profile = user!.tutorProfile!;
+  if (profile.status !== "APPROVED") redirect("/pro/verification");
 
   const wins = await db.quote.findMany({
     where: { tutorId: profile.id, status: "WON" },

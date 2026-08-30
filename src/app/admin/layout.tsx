@@ -9,11 +9,13 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import Logo from "@/components/Logo";
+import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { logout } from "@/actions/auth";
 import ProNavLink from "@/components/ProNavLink";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const pendingReviews = await db.tutorProfile.count({ where: { status: "SUBMITTED" } });
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/admin");
   if (user.role !== "ADMIN") redirect("/");
@@ -31,6 +33,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <ProNavLink href="/admin/overview">
             <LayoutDashboard size={19} />
             Overview
+          </ProNavLink>
+          <ProNavLink href="/admin/verification" badge={pendingReviews > 0}>
+            <ShieldCheck size={19} />
+            Verification
           </ProNavLink>
           <ProNavLink href="/admin/tutors">
             <GraduationCap size={19} />

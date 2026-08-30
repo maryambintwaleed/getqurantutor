@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { FileText, Phone } from "lucide-react";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
@@ -17,6 +18,7 @@ const STATUS_LABELS: Record<string, string> = {
 export default async function QuotesPage() {
   const user = await getCurrentUser();
   const profile = user!.tutorProfile!;
+  if (profile.status !== "APPROVED") redirect("/pro/verification");
 
   const quotes = await db.quote.findMany({
     where: { tutorId: profile.id },

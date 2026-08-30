@@ -27,6 +27,10 @@ export async function sendQuote(_prev: QuoteState, formData: FormData): Promise<
     return { error: "Please enter a price and a message." };
   }
 
+  if (profile.status !== "APPROVED") {
+    return { error: "Your account is still being verified — you cannot send quotes yet." };
+  }
+
   const request = await db.request.findUnique({ where: { id: requestId }, include: { service: true } });
   if (!request || request.status !== "OPEN") {
     return { error: "This opportunity is no longer open." };
