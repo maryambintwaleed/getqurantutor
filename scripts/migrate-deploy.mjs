@@ -16,14 +16,28 @@ if (!pooled) {
   process.exit(0);
 }
 
-// Schema changes must not go through a connection pooler (Neon and Vercel
-// Postgres both expose a direct URL alongside the pooled one). Serving queries
-// still uses the pooled DATABASE_URL.
-const direct =
+// Schema changes must not go through a connection pooler. Migrations take a
+// postgres advisory lock, which belongs to a session — a pooler hands each
+// statement to a different backend, so the lock can never be acquired and the
+// deploy dies with P1002 after ten seconds.
+//
+// Neon names the two endpoints for the same database "<id>-pooler.<host>" and
+// "<id>.<host>", so a pooled URL can be rewritten into its direct twin. That
+// keeps deploys working even when the environment only offers a pooled URL, or
+// offers a "direct" one that turns out to be pooled after all.
+function toDirect(url) {
+  return url
+    .replace("-pooler.", ".")
+    .replace(/([?&])pgbouncer=true(&|$)/, (_m, before, after) => (after === "&" ? before : ""))
+    .replace(/[?&]$/, "");
+}
+
+const direct = toDirect(
   process.env.DIRECT_URL ??
-  process.env.DATABASE_URL_UNPOOLED ??
-  process.env.POSTGRES_URL_NON_POOLING ??
-  pooled;
+    process.env.DATABASE_URL_UNPOOLED ??
+    process.env.POSTGRES_URL_NON_POOLING ??
+    pooled
+);
 
 // A sleeping Neon compute, or a migration still finishing elsewhere, makes the
 // first attempt time out (P1002 — advisory lock) and would otherwise fail the
@@ -68,6 +82,9 @@ console.log(
     ? "Applying database migrations…"
     : "Applying database migrations (direct connection)…"
 );
+if (direct.includes("-pooler.")) {
+  console.warn("⚠  The migration URL still looks pooled; the advisory lock may time out.");
+}
 run("prisma migrate deploy", direct);
 
 console.log("Ensuring the course catalogue exists…");
