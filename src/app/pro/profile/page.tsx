@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { ALL_LANGUAGES } from "@/lib/services";
 import { updateTutorProfile } from "@/actions/tutor";
 import SubmitButton from "@/components/SubmitButton";
+import LocationFields from "@/components/LocationFields";
 import SavedNotice from "@/components/SavedNotice";
 
 export default async function ProfilePage({
@@ -103,19 +104,8 @@ export default async function ProfilePage({
 
         <div className="rounded-2xl border border-slate-200 bg-white p-6">
           <h2 className="font-bold text-slate-900">Where you are</h2>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            <input
-              name="country"
-              defaultValue={profile.country}
-              placeholder="Country (e.g. Egypt, Pakistan)"
-              className="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-brand-500"
-            />
-            <input
-              name="timezone"
-              defaultValue={profile.timezone}
-              placeholder="Time zone (e.g. GMT+5, EET)"
-              className="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-brand-500"
-            />
+          <div className="mt-3">
+            <LocationFields country={profile.country} timezone={profile.timezone} />
           </div>
           <textarea
             name="bio"

@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { acceptQuote } from "@/actions/requests";
 import { timeAgo } from "@/lib/format";
+import { formatZone } from "@/lib/geo";
 
 export default async function MyRequestsPage() {
   const user = await getCurrentUser();
@@ -108,7 +109,7 @@ export default async function MyRequestsPage() {
                                 </span>
                                 {quote.tutor.gender && <span>{quote.tutor.gender} teacher</span>}
                                 {quote.tutor.country && <span>· {quote.tutor.country}</span>}
-                                {quote.tutor.timezone && <span>({quote.tutor.timezone})</span>}
+                                {quote.tutor.timezone && <span>({formatZone(quote.tutor.timezone)})</span>}
                               </p>
                               <p className="mt-1 flex flex-wrap items-center gap-1.5">
                                 {quote.tutor.ijazah && (

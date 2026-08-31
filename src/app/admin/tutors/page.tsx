@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { adjustCredits, deleteUser } from "@/actions/admin";
 import { timeAgo } from "@/lib/format";
+import { formatZone } from "@/lib/geo";
 
 export default async function AdminTutors() {
   const tutors = await db.user.findMany({
@@ -40,7 +41,7 @@ export default async function AdminTutors() {
                     {p.country && (
                       <span className="rounded-lg bg-slate-100 px-2 py-0.5 text-slate-600">
                         {p.country}
-                        {p.timezone ? ` (${p.timezone})` : ""}
+                        {p.timezone ? ` (${formatZone(p.timezone)})` : ""}
                       </span>
                     )}
                     {p.ijazah && (

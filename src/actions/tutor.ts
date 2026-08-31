@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { ALL_GRADES, ALL_LANGUAGES, QUOTE_FEE } from "@/lib/services";
+import { isKnownCountry, isKnownZone } from "@/lib/geo";
 import { notifyFamilyOfQuote } from "@/lib/notify";
 
 async function requireTutor() {
@@ -99,6 +100,13 @@ export async function updateTutorGrades(formData: FormData) {
   revalidatePath("/pro/opportunities");
 }
 
+// Only values from the published lists are stored, so a country or zone can
+// never come back as stray free text.
+function pickKnown(value: FormDataEntryValue | null, allowed: (v: string) => boolean) {
+  const text = String(value ?? "").trim();
+  return allowed(text) ? text : "";
+}
+
 export async function updateTutorProfile(formData: FormData) {
   const profile = await requireTutor();
   const gender = formData.get("gender") === "Female" ? "Female" : "Male";
@@ -113,8 +121,8 @@ export async function updateTutorProfile(formData: FormData) {
       gender,
       languages: JSON.stringify(languages),
       bio: String(formData.get("bio") ?? "").trim().slice(0, 600),
-      country: String(formData.get("country") ?? "").trim(),
-      timezone: String(formData.get("timezone") ?? "").trim(),
+      country: pickKnown(formData.get("country"), isKnownCountry),
+      timezone: pickKnown(formData.get("timezone"), isKnownZone),
       ijazah: formData.get("ijazah") === "on",
       hafiz: formData.get("hafiz") === "on",
     },
