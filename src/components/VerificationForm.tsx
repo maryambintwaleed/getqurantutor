@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { Mic, IdCard } from "lucide-react";
 import { submitVerification, type VerificationState } from "@/actions/verification";
 import SubmitButton from "@/components/SubmitButton";
+import { prepareAudio } from "@/lib/prepare-audio";
 import {
   AUDIO_TYPES,
   DOC_TYPES,
@@ -53,18 +54,22 @@ export default function VerificationForm({
   // sentence in the form, instead of the browser reporting a failed request.
   const [state, action, pending] = useActionState<VerificationState, FormData>(
     async (prev, formData) => {
-      const audio = formData.get("audio") as File | null;
+      let audio = formData.get("audio") as File | null;
       let doc = formData.get("idDoc") as File | null;
 
       if (audio && audio.size > 0) {
         if (audio.type && !AUDIO_TYPES.includes(audio.type)) {
           return { error: "Please upload an audio file (mp3, m4a, wav or ogg)." };
         }
+        // .wav recordings are uncompressed and run to tens of megabytes, so
+        // shrink before complaining about the size.
+        audio = await prepareAudio(audio);
         if (audio.size > MAX_AUDIO) {
           return {
-            error: `That recording is ${mb(audio.size)} — please keep it under ${mb(MAX_AUDIO)}. A one to two minute recording from your phone is usually much smaller, and a shorter clip is enough.`,
+            error: `That recording is ${mb(audio.size)}, which is more than we can accept. Please record a shorter clip — one minute of Surah Al-Fatiha is plenty.`,
           };
         }
+        formData.set("audio", audio);
       }
 
       if (doc && doc.size > 0) {
@@ -107,7 +112,9 @@ export default function VerificationForm({
           your profile, because many families ask specifically for a male or female teacher.
         </p>
         <p className="mt-2 text-xs text-slate-400">
-          Any phone voice recorder works. mp3, m4a, wav or ogg, up to {mb(MAX_AUDIO)}.
+          Any phone voice recorder works — mp3, m4a, wav or ogg. Long or uncompressed
+          recordings are shortened and compressed automatically, so don&apos;t worry about the
+          file size.
         </p>
         <input
           type="file"
