@@ -25,8 +25,43 @@ const direct =
   process.env.POSTGRES_URL_NON_POOLING ??
   pooled;
 
-const run = (command, url) =>
-  execSync(command, { stdio: "inherit", env: { ...process.env, DATABASE_URL: url } });
+// A sleeping Neon compute, or a migration still finishing elsewhere, makes the
+// first attempt time out (P1002 — advisory lock) and would otherwise fail the
+// whole deploy. These are transient, so wait and try again.
+const TRANSIENT = /P1002|P1001|advisory lock|timed out|ETIMEDOUT|ECONNRESET|ECONNREFUSED/i;
+const ATTEMPTS = 3;
+const sleep = (seconds) =>
+  execSync(`node -e "setTimeout(()=>{}, ${seconds * 1000})"`, { stdio: "ignore" });
+
+const run = (command, url) => {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      // Merge stderr into stdout so a failure's reason is visible in the build log.
+      process.stdout.write(
+        execSync(`${command} 2>&1`, {
+          env: { ...process.env, DATABASE_URL: url },
+          encoding: "utf8",
+        })
+      );
+      return;
+    } catch (error) {
+      const output = String(error.stdout ?? "") + String(error.stderr ?? "");
+      process.stdout.write(output);
+
+      if (attempt >= ATTEMPTS || !TRANSIENT.test(output)) {
+        console.error(`\n✖ "${command}" failed after ${attempt} attempt(s).`);
+        process.exit(1);
+      }
+
+      const wait = attempt * 10;
+      console.warn(
+        `\n⚠  "${command}" hit a transient database error ` +
+          `(attempt ${attempt}/${ATTEMPTS}). Retrying in ${wait}s…\n`
+      );
+      sleep(wait);
+    }
+  }
+};
 
 console.log(
   direct === pooled

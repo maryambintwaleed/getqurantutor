@@ -8,10 +8,7 @@ import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { notifyVerificationResult } from "@/lib/notify";
 
-const MAX_AUDIO = 8 * 1024 * 1024; // 8MB — a 1–2 minute recitation is far smaller
-const MAX_DOC = 6 * 1024 * 1024;
-const AUDIO_TYPES = ["audio/mpeg", "audio/mp3", "audio/wav", "audio/x-m4a", "audio/mp4", "audio/webm", "audio/ogg"];
-const DOC_TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+import { AUDIO_TYPES, DOC_TYPES, MAX_AUDIO, MAX_DOC, mb } from "@/lib/verification-limits";
 
 export type VerificationState = { error?: string };
 
@@ -30,10 +27,15 @@ export async function submitVerification(
   const audio = formData.get("audio") as File | null;
   const doc = formData.get("idDoc") as File | null;
 
+  // The browser uploads the recitation straight to blob storage and sends the
+  // resulting URL, because the file itself would exceed the platform's request
+  // size cap and fail with a bare 413 before this action ever runs.
+  const uploadedUrl = String(formData.get("audioUrl") ?? "").trim();
+  const hasUploadedUrl = uploadedUrl.startsWith("https://");
   const hasAudio = audio && audio.size > 0;
   const hasDoc = doc && doc.size > 0;
 
-  if (!hasAudio && !profile.audioUrl) {
+  if (!hasAudio && !hasUploadedUrl && !profile.audioUrl) {
     return { error: "Please add a recording of your recitation." };
   }
   if (!hasDoc && !profile.idDocData) {
@@ -41,7 +43,9 @@ export async function submitVerification(
   }
 
   if (hasAudio) {
-    if (audio.size > MAX_AUDIO) return { error: "That recording is too large — please keep it under 8MB." };
+    if (audio.size > MAX_AUDIO) {
+      return { error: `That recording is too large — please keep it under ${mb(MAX_AUDIO)}.` };
+    }
     if (!AUDIO_TYPES.includes(audio.type)) {
       return { error: "Please upload an audio file (mp3, m4a, wav or ogg)." };
     }
@@ -50,7 +54,9 @@ export async function submitVerification(
     }
   }
   if (hasDoc) {
-    if (doc.size > MAX_DOC) return { error: "That ID file is too large — please keep it under 6MB." };
+    if (doc.size > MAX_DOC) {
+      return { error: `That ID photo is too large — please keep it under ${mb(MAX_DOC)}.` };
+    }
     if (!DOC_TYPES.includes(doc.type)) {
       return { error: "Please upload your ID as a photo (JPG or PNG) or a PDF." };
     }
@@ -66,7 +72,9 @@ export async function submitVerification(
   } = { status: "SUBMITTED", submittedAt: new Date(), reviewNote: "" };
 
   try {
-    if (hasAudio) {
+    if (hasUploadedUrl) {
+      data.audioUrl = uploadedUrl;
+    } else if (hasAudio) {
       // Recitation samples live in blob storage — they are meant to be played
       // back, and later may be shown to families.
       const blob = await put(`recitations/${profile.id}-${Date.now()}`, audio, {

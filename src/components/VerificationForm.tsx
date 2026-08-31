@@ -1,9 +1,33 @@
 "use client";
 
 import { useActionState } from "react";
+import { upload } from "@vercel/blob/client";
 import { Mic, IdCard } from "lucide-react";
 import { submitVerification, type VerificationState } from "@/actions/verification";
 import SubmitButton from "@/components/SubmitButton";
+import { AUDIO_TYPES, DOC_TYPES, MAX_AUDIO, MAX_DOC, mb } from "@/lib/verification-limits";
+
+/**
+ * Phone cameras produce 4–6MB photos, which would blow past the request size
+ * cap. Redrawing the image at a sensible size keeps the ID readable while
+ * making it small enough to send. Anything that isn't an image is left alone.
+ */
+async function shrinkImage(file: File): Promise<File> {
+  if (!file.type.startsWith("image/") || file.size <= MAX_DOC) return file;
+
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, 2000 / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+
+  const blob = await new Promise<Blob | null>((resolve) =>
+    canvas.toBlob(resolve, "image/jpeg", 0.85)
+  );
+  if (!blob || blob.size >= file.size) return file;
+  return new File([blob], file.name.replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" });
+}
 
 export default function VerificationForm({
   hasAudio,
@@ -14,8 +38,51 @@ export default function VerificationForm({
   hasDoc: boolean;
   rejected: boolean;
 }) {
+  // Runs in the browser first: the recitation goes straight to blob storage and
+  // only its URL is handed to the server action.
   const [state, action, pending] = useActionState<VerificationState, FormData>(
-    submitVerification,
+    async (prev, formData) => {
+      const audio = formData.get("audio") as File | null;
+      let doc = formData.get("idDoc") as File | null;
+
+      if (audio && audio.size > 0) {
+        if (audio.size > MAX_AUDIO) {
+          return { error: `That recording is too large — please keep it under ${mb(MAX_AUDIO)}.` };
+        }
+        if (audio.type && !AUDIO_TYPES.includes(audio.type)) {
+          return { error: "Please upload an audio file (mp3, m4a, wav or ogg)." };
+        }
+        try {
+          const blob = await upload(`recitations/${Date.now()}-${audio.name}`, audio, {
+            access: "public",
+            handleUploadUrl: "/api/verification/audio",
+            contentType: audio.type,
+          });
+          formData.set("audioUrl", blob.url);
+        } catch {
+          return { error: "That recording didn't upload. Please check your connection and try again." };
+        }
+        formData.delete("audio");
+      }
+
+      if (doc && doc.size > 0) {
+        if (doc.type && !DOC_TYPES.includes(doc.type)) {
+          return { error: "Please upload your ID as a photo (JPG or PNG) or a PDF." };
+        }
+        doc = await shrinkImage(doc);
+        if (doc.size > MAX_DOC) {
+          return {
+            error:
+              doc.type === "application/pdf"
+                ? `That PDF is too large — please keep it under ${mb(MAX_DOC)}, or send a photo of your ID instead.`
+                : `That ID photo is too large — please keep it under ${mb(MAX_DOC)}.`,
+          };
+        }
+        formData.set("idDoc", doc);
+      }
+
+      return submitVerification(prev, formData);
+    },
     {}
   );
 
@@ -31,7 +98,7 @@ export default function VerificationForm({
           your profile, because many families ask specifically for a male or female teacher.
         </p>
         <p className="mt-2 text-xs text-slate-400">
-          Any phone voice recorder works. mp3, m4a, wav or ogg, up to 8MB.
+          Any phone voice recorder works. mp3, m4a, wav or ogg, up to {mb(MAX_AUDIO)}.
         </p>
         <input
           type="file"
@@ -56,7 +123,7 @@ export default function VerificationForm({
         </p>
         <p className="mt-2 text-xs text-slate-400">
           Only our review team can open this, it is never shown to families, and we delete it as
-          soon as you are approved. JPG, PNG or PDF, up to 6MB.
+          soon as you are approved. JPG, PNG or PDF — large photos are shrunk automatically.
         </p>
         <input
           type="file"
