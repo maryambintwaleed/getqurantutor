@@ -90,8 +90,13 @@ export default async function AdminVerification() {
 
               {t.bio && <p className="mt-3 text-sm text-slate-600">{t.bio}</p>}
 
-              {t.audioUrl ? (
-                <audio controls preload="none" src={t.audioUrl} className="mt-4 w-full" />
+              {t.audioType || t.audioUrl ? (
+                <audio
+                  controls
+                  preload="none"
+                  src={t.audioUrl || `/admin/verification/audio/${t.id}`}
+                  className="mt-4 w-full"
+                />
               ) : (
                 <p className="mt-4 text-sm text-amber-700">No recitation uploaded.</p>
               )}

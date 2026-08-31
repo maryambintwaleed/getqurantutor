@@ -88,7 +88,7 @@ export default async function VerificationPage({
       {!waiting && (
         <div className="mt-6">
           <VerificationForm
-            hasAudio={Boolean(profile.audioUrl)}
+            hasAudio={Boolean(profile.audioType || profile.audioUrl)}
             hasDoc={Boolean(profile.idDocData)}
             rejected={rejected}
           />

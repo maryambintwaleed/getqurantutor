@@ -3,11 +3,9 @@
 import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { revalidatePath } from "next/cache";
-import { put } from "@vercel/blob";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { notifyVerificationResult } from "@/lib/notify";
-
 import { AUDIO_TYPES, DOC_TYPES, MAX_AUDIO, MAX_DOC, mb } from "@/lib/verification-limits";
 
 export type VerificationState = { error?: string };
@@ -27,37 +25,33 @@ export async function submitVerification(
   const audio = formData.get("audio") as File | null;
   const doc = formData.get("idDoc") as File | null;
 
-  // The browser uploads the recitation straight to blob storage and sends the
-  // resulting URL, because the file itself would exceed the platform's request
-  // size cap and fail with a bare 413 before this action ever runs.
-  const uploadedUrl = String(formData.get("audioUrl") ?? "").trim();
-  const hasUploadedUrl = uploadedUrl.startsWith("https://");
   const hasAudio = audio && audio.size > 0;
   const hasDoc = doc && doc.size > 0;
 
-  if (!hasAudio && !hasUploadedUrl && !profile.audioUrl) {
+  // audioType is the marker that a recitation is on file; the bytes themselves
+  // live in their own table so they are only read when an admin plays them.
+  if (!hasAudio && !profile.audioType && !profile.audioUrl) {
     return { error: "Please add a recording of your recitation." };
   }
-  if (!hasDoc && !profile.idDocData) {
+  if (!hasDoc && !profile.idDocType) {
     return { error: "Please add a photo of your ID." };
   }
 
   if (hasAudio) {
     if (audio.size > MAX_AUDIO) {
-      return { error: `That recording is too large — please keep it under ${mb(MAX_AUDIO)}.` };
+      return {
+        error: `That recording is too large — please keep it under ${mb(MAX_AUDIO)}. A one to two minute recording is usually much smaller.`,
+      };
     }
-    if (!AUDIO_TYPES.includes(audio.type)) {
+    if (audio.type && !AUDIO_TYPES.includes(audio.type)) {
       return { error: "Please upload an audio file (mp3, m4a, wav or ogg)." };
-    }
-    if (!process.env.BLOB_READ_WRITE_TOKEN) {
-      return { error: "Audio uploads are not configured yet. Please contact us." };
     }
   }
   if (hasDoc) {
     if (doc.size > MAX_DOC) {
-      return { error: `That ID photo is too large — please keep it under ${mb(MAX_DOC)}.` };
+      return { error: `That ID file is too large — please keep it under ${mb(MAX_DOC)}.` };
     }
-    if (!DOC_TYPES.includes(doc.type)) {
+    if (doc.type && !DOC_TYPES.includes(doc.type)) {
       return { error: "Please upload your ID as a photo (JPG or PNG) or a PDF." };
     }
   }
@@ -66,28 +60,28 @@ export async function submitVerification(
     status: string;
     submittedAt: Date;
     reviewNote: string;
-    audioUrl?: string;
+    audioType?: string;
     idDocData?: Uint8Array<ArrayBuffer>;
     idDocType?: string;
   } = { status: "SUBMITTED", submittedAt: new Date(), reviewNote: "" };
 
   try {
-    if (hasUploadedUrl) {
-      data.audioUrl = uploadedUrl;
-    } else if (hasAudio) {
-      // Recitation samples live in blob storage — they are meant to be played
-      // back, and later may be shown to families.
-      const blob = await put(`recitations/${profile.id}-${Date.now()}`, audio, {
-        access: "public",
-        contentType: audio.type,
-      });
-      data.audioUrl = blob.url;
-    }
     if (hasDoc) {
       // Identity documents deliberately do NOT go to public storage. They are
       // held in the database and only ever served to an admin.
       data.idDocData = new Uint8Array(await doc.arrayBuffer()).slice();
-      data.idDocType = doc.type;
+      data.idDocType = doc.type || "application/octet-stream";
+    }
+
+    if (hasAudio) {
+      const bytes = new Uint8Array(await audio.arrayBuffer()).slice();
+      const contentType = audio.type || "audio/mpeg";
+      data.audioType = contentType;
+      await db.recitation.upsert({
+        where: { tutorId: profile.id },
+        update: { data: bytes, contentType },
+        create: { tutorId: profile.id, data: bytes, contentType },
+      });
     }
   } catch (err) {
     console.error("[verification upload failed]", err);

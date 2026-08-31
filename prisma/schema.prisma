@@ -45,7 +45,8 @@ model TutorProfile {
   // Verification. A teacher sees no family requests until an admin approves
   // them: PENDING (nothing sent) -> SUBMITTED -> APPROVED | REJECTED.
   status      String    @default("PENDING")
-  audioUrl    String    @default("") // recitation sample — confirms voice and tajweed
+  audioUrl    String    @default("") // legacy: samples that were kept in blob storage
+  audioType   String    @default("") // mime type of the recitation; empty means none on file
   idDocData   Bytes? // identity document, kept out of public storage on purpose
   idDocType   String    @default("") // mime type of the document above
   reviewNote  String    @default("") // what the admin told them
@@ -56,6 +57,7 @@ model TutorProfile {
   services     TutorService[]
   quotes       Quote[]
   transactions WalletTransaction[]
+  recitation   Recitation?
 }
 
 model Service {
@@ -127,6 +129,15 @@ model WalletTransaction {
   type      String // TOPUP | QUOTE_FEE
   note      String   @default("")
   createdAt DateTime @default(now())
+
+  tutor TutorProfile @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+}
+
+model Recitation {
+  tutorId     String   @id
+  data        Bytes
+  contentType String
+  createdAt   DateTime @default(now())
 
   tutor TutorProfile @relation(fields: [tutorId], references: [id], onDelete: Cascade)
 }
