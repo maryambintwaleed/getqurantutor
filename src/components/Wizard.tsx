@@ -6,6 +6,13 @@ import { X, ChevronLeft } from "lucide-react";
 import type { WizardQuestion } from "@/lib/services";
 import { createRequest } from "@/actions/requests";
 import { COMMON_COUNTRIES, COUNTRIES } from "@/lib/geo";
+import SearchableSelect, { type SelectOption } from "@/components/SearchableSelect";
+
+// Common countries first so the usual answer is one keystroke away.
+const countryOptions: SelectOption[] = [
+  ...COMMON_COUNTRIES.map((c) => ({ value: c, label: c })),
+  ...COUNTRIES.filter((c) => !COMMON_COUNTRIES.includes(c)).map((c) => ({ value: c, label: c })),
+];
 
 export type WizardService = {
   slug: string;
@@ -212,30 +219,14 @@ export default function Wizard({ service }: { service: WizardService }) {
                     placeholder="Your name *"
                     className="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-brand-500"
                   />
-                  <select
+                  <SearchableSelect
+                    ariaLabel="Your country"
+                    placeholder="Your country (optional)"
                     value={country}
-                    onChange={(e) => setCountry(e.target.value)}
-                    aria-label="Your country"
-                    className={`rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-brand-500 ${
-                      country ? "text-slate-900" : "text-slate-400"
-                    }`}
-                  >
-                    <option value="">Your country (optional)</option>
-                    <optgroup label="Common">
-                      {COMMON_COUNTRIES.map((c) => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
-                      ))}
-                    </optgroup>
-                    <optgroup label="All countries">
-                      {COUNTRIES.map((c) => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
-                      ))}
-                    </optgroup>
-                  </select>
+                    onChange={setCountry}
+                    options={countryOptions}
+                    emptyText="No country matches that"
+                  />
                 </div>
                 {error && <p className="text-sm text-red-600">{error}</p>}
               </div>

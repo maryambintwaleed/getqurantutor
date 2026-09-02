@@ -1,6 +1,6 @@
 import { BadgeCheck } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
-import { ALL_LANGUAGES, COMMON_LANGUAGES } from "@/lib/services";
+import LanguagePicker from "@/components/LanguagePicker";
 import { updateTutorProfile } from "@/actions/tutor";
 import SubmitButton from "@/components/SubmitButton";
 import LocationFields from "@/components/LocationFields";
@@ -15,10 +15,6 @@ export default async function ProfilePage({
   const user = await getCurrentUser();
   const profile = user!.tutorProfile!;
   const myLanguages = new Set<string>(JSON.parse(profile.languages || "[]"));
-  const otherLanguages = ALL_LANGUAGES.filter((l) => !COMMON_LANGUAGES.includes(l));
-  // Open the full list when one of their languages lives inside it, so a saved
-  // choice is never hidden behind a collapsed section.
-  const hasUncommonLanguage = otherLanguages.some((l) => myLanguages.has(l));
 
   return (
     <>
@@ -90,25 +86,7 @@ export default async function ProfilePage({
           <p className="mt-1 text-sm text-slate-500">
             Families filter by language, so pick every language you can teach comfortably in.
           </p>
-          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {COMMON_LANGUAGES.map((lang) => (
-              <LanguageChoice key={lang} lang={lang} checked={myLanguages.has(lang)} />
-            ))}
-          </div>
-
-          <details open={hasUncommonLanguage} className="group mt-3">
-            <summary className="cursor-pointer list-none text-sm font-semibold text-brand-700 hover:underline">
-              <span className="group-open:hidden">
-                More languages ({otherLanguages.length}) →
-              </span>
-              <span className="hidden group-open:inline">Hide the full list</span>
-            </summary>
-            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-              {otherLanguages.map((lang) => (
-                <LanguageChoice key={lang} lang={lang} checked={myLanguages.has(lang)} />
-              ))}
-            </div>
-          </details>
+          <LanguagePicker selected={[...myLanguages]} />
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-6">
@@ -134,17 +112,3 @@ export default async function ProfilePage({
   );
 }
 
-function LanguageChoice({ lang, checked }: { lang: string; checked: boolean }) {
-  return (
-    <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm hover:border-brand-400">
-      <input
-        type="checkbox"
-        name="languages"
-        value={lang}
-        defaultChecked={checked}
-        className="h-4 w-4 accent-brand-600"
-      />
-      {lang}
-    </label>
-  );
-}
