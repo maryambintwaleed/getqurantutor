@@ -48,7 +48,8 @@ export default async function Home() {
             <Users size={17} className="text-brand-600" /> Female teachers available for sisters &amp; children
           </span>
           <span className="flex items-center gap-2">
-            <ShieldCheck size={17} className="text-brand-600" /> ID-checked, ijazah-verified teachers
+            <ShieldCheck size={17} className="text-brand-600" /> Every teacher reviewed and
+            voice-checked before they meet a family
           </span>
           <span className="flex items-center gap-2">
             <Video size={17} className="text-brand-600" /> Online 1-to-1, parents welcome to sit in
@@ -102,8 +103,8 @@ export default async function Home() {
               },
               {
                 icon: UserCheck,
-                title: "3. Take a free trial",
-                text: "Compare teachers, do a trial class, then continue with the one your family likes.",
+                title: "3. Choose your teacher",
+                text: "Compare their plans, prices and credentials — many offer a free first class — then pick the one your family likes.",
               },
             ].map((step) => (
               <div key={step.title} className="rounded-2xl bg-white p-6 text-center shadow-sm">

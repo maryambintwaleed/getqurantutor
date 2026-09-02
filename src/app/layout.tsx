@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "GetQuranTutor — Verified Quran teachers for your family",
     description:
-      "Qaida, recitation, tajweed and hifdh with verified male and female teachers. Compare quotes, take a free trial, start this week.",
+      "Qaida, recitation, tajweed and hifdh with reviewed male and female teachers. Compare quotes and start this week.",
     url: "https://getqurantutor.com",
     siteName: "GetQuranTutor",
     type: "website",
