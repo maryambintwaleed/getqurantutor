@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import { ALL_LANGUAGES, COMMON_LANGUAGES } from "@/lib/services";
 
 /**
@@ -90,17 +90,18 @@ export default function LanguagePicker({ selected }: { selected: string[] }) {
       ) : (
         <>
           {grid(COMMON_LANGUAGES)}
-          {showAll ? (
-            grid(others)
-          ) : (
-            <button
-              type="button"
-              onClick={() => setShowAll(true)}
-              className="mt-3 text-sm font-semibold text-brand-700 hover:underline"
-            >
-              More languages ({others.length}) →
-            </button>
-          )}
+          {showAll && grid(others)}
+          {/* The button stays put whether the list is open or closed, so it can
+              always be closed again. */}
+          <button
+            type="button"
+            onClick={() => setShowAll((open) => !open)}
+            aria-expanded={showAll}
+            className="mt-3 flex items-center gap-1 text-sm font-semibold text-brand-700 hover:underline"
+          >
+            {showAll ? "Show fewer languages" : `More languages (${others.length})`}
+            <ChevronDown size={15} className={showAll ? "rotate-180" : ""} />
+          </button>
         </>
       )}
 
