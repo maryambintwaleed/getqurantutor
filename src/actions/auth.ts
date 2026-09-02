@@ -52,14 +52,29 @@ export async function login(_prev: AuthState, formData: FormData): Promise<AuthS
   }
   await createSession(user.id);
   if (user.role === "PARENT") await claimPendingRequests(user.id);
-  redirect(
-    next ||
-      (user.role === "ADMIN"
-        ? "/admin"
-        : user.role === "TUTOR"
-          ? "/pro/opportunities"
-          : "/requests")
-  );
+  redirect(destinationFor(user.role, next));
+}
+
+/** Where each role belongs once signed in. */
+function homeFor(role: string) {
+  if (role === "ADMIN") return "/admin";
+  if (role === "TUTOR") return "/pro/opportunities";
+  return "/requests";
+}
+
+/**
+ * Honours ?next= only when it belongs to this user's side of the product.
+ * Without this, a teacher who opened the family page while logged out is sent
+ * straight back to it after signing in — landing on a page that invites them
+ * to hire a teacher. Also refuses anything that is not a local path, so the
+ * parameter cannot bounce someone to another site.
+ */
+function destinationFor(role: string, next: string) {
+  if (!next.startsWith("/") || next.startsWith("//")) return homeFor(role);
+
+  const area =
+    next.startsWith("/admin") ? "ADMIN" : next.startsWith("/pro") ? "TUTOR" : "PARENT";
+  return area === role ? next : homeFor(role);
 }
 
 export async function logout() {

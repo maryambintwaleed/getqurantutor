@@ -11,6 +11,11 @@ import { formatZone } from "@/lib/geo";
 export default async function MyRequestsPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/requests");
+  // This is the family view. A teacher who lands here — from a bookmark, or a
+  // ?next= carried through login — belongs in their own dashboard, not on a
+  // page inviting them to hire a teacher.
+  if (user.role === "TUTOR") redirect("/pro/opportunities");
+  if (user.role === "ADMIN") redirect("/admin");
 
   const requests = await db.request.findMany({
     where: { parentId: user.id },
