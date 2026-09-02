@@ -42,13 +42,26 @@ export default function SearchableSelect({
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return options;
-    // Names that begin with what was typed come first: "ind" should offer
-    // India before Finland.
-    const starts = options.filter((o) => o.label.toLowerCase().startsWith(q));
-    const contains = options.filter(
-      (o) => !o.label.toLowerCase().startsWith(q) && o.label.toLowerCase().includes(q)
-    );
-    return [...starts, ...contains];
+
+    // The value is searched as well as the label, so a time zone shown as
+    // "Pakistan — GMT+5" is still found by typing "karachi" — its value is
+    // Asia/Karachi. Slashes and underscores count as spaces so each part of
+    // the value is a word of its own.
+    const haystack = (o: SelectOption) =>
+      `${o.label} ${o.value.replace(/[/_]/g, " ")}`.toLowerCase();
+
+    const rank = (o: SelectOption) => {
+      if (o.label.toLowerCase().startsWith(q)) return 0; // "ind" → India before Finland
+      if (haystack(o).split(/\s+/).some((word) => word.startsWith(q))) return 1;
+      if (haystack(o).includes(q)) return 2;
+      return 3;
+    };
+
+    return options
+      .map((option, i) => ({ option, i, rank: rank(option) }))
+      .filter((entry) => entry.rank < 3)
+      .sort((a, b) => a.rank - b.rank || a.i - b.i)
+      .map((entry) => entry.option);
   }, [options, query]);
 
   useEffect(() => setActive(0), [query]);
