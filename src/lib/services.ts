@@ -20,15 +20,38 @@ export const GRADE_QUESTION_TEXT = "What is the student's current level?";
 export const TUTOR_GENDER_QUESTION = "Do you need a male or female teacher?";
 export const GENDER_OPTIONS = ["Female teacher", "Male teacher", "No preference"];
 
-export const ALL_LANGUAGES = [
+/**
+ * A family and a teacher have to share a language before anything else works,
+ * so the list covers both sides: the languages our teachers speak at home
+ * (Pakistan, Egypt, Bangladesh, India, Nigeria) and the ones diaspora families
+ * speak in the US, UK, Europe and the Gulf.
+ */
+
+/** Shown first — the languages asked for most often. */
+export const COMMON_LANGUAGES = [
   "English",
   "Arabic",
   "Urdu",
-  "Bengali",
-  "Turkish",
   "French",
-  "Malay",
+  "Bengali",
+  "Hindi",
+  "Turkish",
   "Somali",
+  "Pashto",
+  "Indonesian",
+  "Malay",
+  "Persian (Farsi)",
+];
+
+/** Every language a teacher can offer, alphabetically. */
+export const ALL_LANGUAGES = [
+  "Albanian", "Amharic", "Arabic", "Azerbaijani", "Balochi", "Bengali", "Bosnian", "Dutch",
+  "English", "French", "Fulani", "German", "Gujarati", "Hausa", "Hindi", "Indonesian",
+  "Italian", "Kashmiri", "Kazakh", "Kurdish", "Kyrgyz", "Malay", "Malayalam",
+  "Mandarin Chinese", "Nepali", "Norwegian", "Pashto", "Persian (Farsi)", "Portuguese",
+  "Punjabi", "Russian", "Saraiki", "Sindhi", "Sinhala", "Somali", "Spanish", "Swahili",
+  "Swedish", "Tagalog", "Tajik", "Tamil", "Telugu", "Thai", "Tigrinya", "Turkish",
+  "Turkmen", "Urdu", "Uzbek", "Wolof", "Yoruba",
 ];
 
 export type ServiceDef = {
