@@ -6,7 +6,9 @@
 // succeeds on a fresh project before DATABASE_URL has been attached.
 import { execSync } from "node:child_process";
 
-const pooled = process.env.DATABASE_URL;
+// Same fallback as the app: the Neon integration keeps POSTGRES_URL current.
+const pooled =
+  process.env.DATABASE_URL ?? process.env.POSTGRES_URL ?? process.env.POSTGRES_PRISMA_URL;
 
 if (!pooled) {
   console.warn(

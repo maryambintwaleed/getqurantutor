@@ -4,11 +4,18 @@ import { PrismaPg } from "@prisma/adapter-pg";
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
 function createClient() {
-  const connectionString = process.env.DATABASE_URL;
+  // Prefer an explicit DATABASE_URL, but fall back to the variables the Neon
+  // integration maintains on Vercel. Those are updated automatically whenever
+  // the database password is rotated, so nothing has to be re-pasted by hand.
+  const connectionString =
+    process.env.DATABASE_URL ??
+    process.env.POSTGRES_URL ??
+    process.env.POSTGRES_PRISMA_URL;
+
   if (!connectionString) {
     throw new Error(
-      "DATABASE_URL is not set. Add your Postgres connection string to .env (local) " +
-        "and to the project's Environment Variables (Vercel)."
+      "No database connection string. Set DATABASE_URL in .env locally; on Vercel " +
+        "either set it or connect the Neon integration, which provides POSTGRES_URL."
     );
   }
   return new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
