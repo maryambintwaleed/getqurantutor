@@ -33,9 +33,9 @@ export async function submitVerification(
   if (!hasAudio && !profile.audioType && !profile.audioUrl) {
     return { error: "Please add a recording of your recitation." };
   }
-  if (!hasDoc && !profile.idDocType) {
-    return { error: "Please add a photo of your ID." };
-  }
+  // ID is optional: a teacher can be reviewed on their recitation alone, and
+  // asking for a passport up front turns away good teachers. The admin queue
+  // shows whether one was provided so it can still be requested case by case.
 
   if (hasAudio) {
     if (audio.size > MAX_AUDIO) {

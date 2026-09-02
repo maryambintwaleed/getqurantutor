@@ -105,6 +105,9 @@ export default function VerificationForm({
       <div className="rounded-2xl border border-slate-200 bg-white p-6">
         <h2 className="flex items-center gap-2 font-bold text-slate-900">
           <Mic size={18} className="text-brand-600" /> Recitation recording
+          <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700">
+            Required
+          </span>
         </h2>
         <p className="mt-1 text-sm text-slate-500">
           Record yourself reciting any passage for one to two minutes — Surah Al-Fatiha is
@@ -132,10 +135,14 @@ export default function VerificationForm({
       <div className="rounded-2xl border border-slate-200 bg-white p-6">
         <h2 className="flex items-center gap-2 font-bold text-slate-900">
           <IdCard size={18} className="text-brand-600" /> Proof of identity
+          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
+            Optional
+          </span>
         </h2>
         <p className="mt-1 text-sm text-slate-500">
-          A photo of your passport, national ID or driving licence. The name must match the name
-          on your profile.
+          A photo of your passport, national ID or driving licence, with the name matching your
+          profile. You can be approved without it, but adding it gets you reviewed faster and
+          shows families you are fully checked.
         </p>
         <p className="mt-2 text-xs text-slate-400">
           Only our review team can open this, it is never shown to families, and we delete it as
