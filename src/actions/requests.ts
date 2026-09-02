@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { rememberPendingRequest } from "@/lib/pending";
 import { notifyMatchingTeachers, notifyTeacherOfWin } from "@/lib/notify";
+import { isKnownCountry } from "@/lib/geo";
 import { GRADE_QUESTION_TEXT, TUTOR_GENDER_QUESTION } from "@/lib/services";
 
 export async function createRequest(input: {
@@ -47,7 +48,9 @@ export async function createRequest(input: {
       email: input.email.trim().toLowerCase(),
       details: input.details,
       mode,
-      city: input.city,
+      // Picked from a list in the form; anything else is discarded rather than
+      // stored, so locations stay comparable.
+      city: isKnownCountry(input.city) ? input.city : "",
       urgent,
     },
   });

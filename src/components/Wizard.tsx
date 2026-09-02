@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { X, ChevronLeft } from "lucide-react";
 import type { WizardQuestion } from "@/lib/services";
 import { createRequest } from "@/actions/requests";
+import { COMMON_COUNTRIES, COUNTRIES } from "@/lib/geo";
 
 export type WizardService = {
   slug: string;
@@ -26,7 +27,7 @@ export default function Wizard({ service }: { service: WizardService }) {
   const [details, setDetails] = useState("");
   const [parentName, setParentName] = useState("");
   const [email, setEmail] = useState("");
-  const [city, setCity] = useState("");
+  const [country, setCountry] = useState("");
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState("");
 
@@ -88,7 +89,7 @@ export default function Wizard({ service }: { service: WizardService }) {
         details,
         parentName: parentName.trim(),
         email: email.trim(),
-        city: city.trim(),
+        city: country, // the location column now holds a country picked from the list
         urgent: false,
       });
     });
@@ -211,12 +212,30 @@ export default function Wizard({ service }: { service: WizardService }) {
                     placeholder="Your name *"
                     className="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-brand-500"
                   />
-                  <input
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder="Country / city (optional)"
-                    className="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-brand-500"
-                  />
+                  <select
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                    aria-label="Your country"
+                    className={`rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-brand-500 ${
+                      country ? "text-slate-900" : "text-slate-400"
+                    }`}
+                  >
+                    <option value="">Your country (optional)</option>
+                    <optgroup label="Common">
+                      {COMMON_COUNTRIES.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="All countries">
+                      {COUNTRIES.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </optgroup>
+                  </select>
                 </div>
                 {error && <p className="text-sm text-red-600">{error}</p>}
               </div>
