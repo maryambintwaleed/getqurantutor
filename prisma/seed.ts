@@ -31,7 +31,7 @@ async function main() {
       ijazah: true,
       hafiza: true,
       balance: 60,
-      bio: "Hafiza with ijazah in Hafs an Asim. 7 years teaching children online in the UK and US — patient with young beginners and specialise in Qaida and hifdh for girls.",
+      bio: "Hafiza with ijazah in Hafs an Asim. 7 years teaching children online around the world — patient with young beginners and specialise in Qaida and hifdh for girls.",
       courses: ["noorani-qaida", "quran-recitation", "hifdh", "tajweed", "islamic-studies"],
       levels: [
         "Absolute beginner",
@@ -52,7 +52,7 @@ async function main() {
       ijazah: true,
       hafiza: true,
       balance: 35,
-      bio: "Al-Azhar graduate, ijazah in the ten qira'at. Teaching tajweed and advanced recitation to students in North America and Europe for 12 years.",
+      bio: "Al-Azhar graduate, ijazah in the ten qira'at. Teaching tajweed and advanced recitation to students around the world for 12 years.",
       courses: ["quran-recitation", "tajweed", "hifdh", "arabic-language"],
       levels: ["Reads fluently", "Hifdh in progress", "Hafiz — revision only", "Reading with help (Nazra)"],
     },
@@ -148,8 +148,8 @@ async function main() {
       grade: "Absolute beginner",
       tutorGender: "Female",
       details:
-        "My daughter is 6 and has never studied Arabic letters. We are in London and would like a female teacher who is gentle with young children. Evenings after 5pm UK time work best.",
-      city: "London, UK",
+        "My daughter is 6 and has never studied Arabic letters. We are in Kuala Lumpur and would like a female teacher who is gentle with young children. Evenings after 5pm Malaysia time work best.",
+      city: "Kuala Lumpur, Malaysia",
       urgent: true,
       createdAt: hoursAgo(2),
       answers: A([
@@ -170,7 +170,7 @@ async function main() {
       tutorGender: "Female",
       details:
         "My twin daughters (9) have finished Juz Amma and want to continue full hifdh insha'Allah. Looking for a hafiza who can do daily sabaq plus revision, ideally the same teacher for both.",
-      city: "Toronto, Canada",
+      city: "Johannesburg, South Africa",
       urgent: false,
       createdAt: hoursAgo(5),
       answers: A([
@@ -192,8 +192,8 @@ async function main() {
       grade: "Reading with help (Nazra)",
       tutorGender: "Male",
       details:
-        "I am 34 and can read slowly but make many mistakes. I want to complete a full nazra reading with correction. Prefer a male teacher, evenings US Eastern time.",
-      city: "New Jersey, USA",
+        "I am 34 and can read slowly but make many mistakes. I want to complete a full nazra reading with correction. Prefer a male teacher, evenings Singapore time.",
+      city: "Singapore",
       urgent: false,
       createdAt: hoursAgo(9),
       answers: A([
@@ -215,7 +215,7 @@ async function main() {
       tutorGender: "Female",
       details:
         "I read fluently but was never taught tajweed properly. Looking for a structured course covering makharij and the rules, with correction of my recitation.",
-      city: "Birmingham, UK",
+      city: "Cape Town, South Africa",
       urgent: false,
       createdAt: hoursAgo(14),
       answers: A([
@@ -259,7 +259,7 @@ async function main() {
       tutorGender: "Female",
       details:
         "Alongside Qaida I would like my two children (5 and 7) to learn their daily duas and how to pray. Short fun classes twice a week please.",
-      city: "Dublin, Ireland",
+      city: "Auckland, New Zealand",
       urgent: false,
       createdAt: hoursAgo(26),
       answers: A([
@@ -283,7 +283,7 @@ async function main() {
       tutorGender: "No preference",
       details:
         "I can recite but understand nothing. Looking for Quranic Arabic — vocabulary and enough grammar to follow the meaning while reading.",
-      city: "Manchester, UK",
+      city: "Nairobi, Kenya",
       urgent: false,
       createdAt: hoursAgo(34),
       answers: A([
@@ -304,7 +304,7 @@ async function main() {
       tutorGender: "Female",
       details:
         "My son (7) knows the letters but cannot join them yet. His previous teacher moved. Female teacher preferred as classes are at home with the girls too.",
-      city: "Doha, Qatar",
+      city: "Jakarta, Indonesia",
       urgent: false,
       createdAt: hoursAgo(44),
       answers: A([
