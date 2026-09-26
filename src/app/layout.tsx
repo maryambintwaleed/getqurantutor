@@ -19,11 +19,11 @@ export const metadata: Metadata = {
     template: "%s | GetQuranTutor",
   },
   description:
-    "Tell us what you need — Qaida, recitation, tajweed or hifdh — and receive quotes from verified male and female Quran teachers. Free for families.",
+    "Tell us what you need — Islamic studies, Arabic and more — and receive quotes from verified male and female teachers. Free for families.",
   openGraph: {
     title: "GetQuranTutor — Verified Quran teachers for your family",
     description:
-      "Qaida, recitation, tajweed and hifdh with reviewed male and female teachers. Compare quotes and start this week.",
+      "Islamic studies, Arabic and more with reviewed male and female teachers. Compare quotes and start this week.",
     url: "https://getqurantutor.com",
     siteName: "GetQuranTutor",
     type: "website",

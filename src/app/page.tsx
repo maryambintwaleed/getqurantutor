@@ -22,14 +22,14 @@ export default async function Home() {
       <section className="bg-gradient-to-br from-brand-900 via-brand-800 to-brand-600 px-4 py-20 text-center text-white">
         <div className="mx-auto max-w-3xl">
           <p className="mb-3 inline-block rounded-full bg-white/10 px-4 py-1 text-sm font-medium text-brand-100">
-            Online Quran classes for families worldwide
+            Online Islamic studies classes for families worldwide
           </p>
           <h1 className="text-4xl font-bold leading-tight sm:text-5xl">
             Verified Quran teachers,
             <span className="text-accent-400"> matched to your family</span>
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-lg text-brand-100">
-            Qaida, recitation, tajweed or hifdh — tell us what you need and qualified male and
+            Islamic studies, Arabic and more — tell us what you need and qualified male and
             female teachers send you their plan. Free for families.
           </p>
           <div className="mt-8">
