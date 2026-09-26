@@ -36,7 +36,7 @@ export default async function Home() {
             <ServiceSearch services={searchServices} />
           </div>
           <p className="mt-4 text-sm text-brand-200">
-            Popular: Noorani Qaida · Quran Recitation · Hifdh · Tajweeb
+            Popular: Noorani Qaida · Quran Recitation · Hifdh · Tajweed
           </p>
         </div>
       </section>
