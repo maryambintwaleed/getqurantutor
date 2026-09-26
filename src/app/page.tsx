@@ -22,7 +22,7 @@ export default async function Home() {
       <section className="bg-gradient-to-br from-brand-900 via-brand-800 to-brand-600 px-4 py-20 text-center text-white">
         <div className="mx-auto max-w-3xl">
           <p className="mb-3 inline-block rounded-full bg-white/10 px-4 py-1 text-sm font-medium text-brand-100">
-            Online Islamic studies classes for families worldwide
+            Online Quran and Islamic studies classes for families worldwide
           </p>
           <h1 className="text-4xl font-bold leading-tight sm:text-5xl">
             Verified Quran teachers,
