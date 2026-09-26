@@ -62,21 +62,14 @@ export async function saveCategory(
   const name = String(formData.get("name") ?? "").trim();
   const emoji = String(formData.get("emoji") ?? "").trim() || "📚";
   const description = String(formData.get("description") ?? "").trim();
-  const priceMin = Number(formData.get("priceMin"));
-  const priceMax = Number(formData.get("priceMax"));
   const grades = formData.getAll("grades").map(String).filter((g) => ALL_GRADES.includes(g));
 
   if (!name) return { error: "Name is required." };
-  if (!Number.isFinite(priceMin) || !Number.isFinite(priceMax) || priceMin < 0 || priceMax < priceMin) {
-    return { error: "Enter a valid price range." };
-  }
 
   const data = {
     name,
     emoji,
     description,
-    priceMin: Math.round(priceMin),
-    priceMax: Math.round(priceMax),
     grades: JSON.stringify(grades),
   };
 

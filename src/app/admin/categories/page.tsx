@@ -43,9 +43,6 @@ export default async function AdminCategories() {
                   </p>
                   <p className="mt-0.5 text-sm text-slate-500">{s.description}</p>
                 </div>
-                <p className="text-sm font-medium text-slate-700">
-                  ${s.priceMin}–${s.priceMax}
-                </p>
               </div>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {grades.length === 0 ? (

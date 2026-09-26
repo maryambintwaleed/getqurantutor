@@ -21,8 +21,6 @@ export default async function EditCategory({
             name: service.name,
             emoji: service.emoji,
             description: service.description,
-            priceMin: service.priceMin,
-            priceMax: service.priceMax,
             grades: JSON.parse(service.grades || "[]"),
           }}
         />

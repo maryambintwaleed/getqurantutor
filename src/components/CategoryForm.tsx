@@ -9,8 +9,6 @@ export type CategoryValues = {
   name: string;
   emoji: string;
   description: string;
-  priceMin: number;
-  priceMax: number;
   grades: string[];
 };
 
@@ -43,24 +41,6 @@ export default function CategoryForm({ initial }: { initial?: CategoryValues }) 
         placeholder="Short description shown to parents"
         className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-brand-500"
       />
-      <div className="flex items-center gap-3">
-        <label className="text-sm font-medium text-slate-700">Price range ($/class)</label>
-        <input
-          name="priceMin"
-          type="number"
-          min={0}
-          defaultValue={initial?.priceMin ?? 10}
-          className="w-24 rounded-xl border border-slate-200 px-3 py-2.5 outline-none focus:border-brand-500"
-        />
-        <span className="text-slate-400">–</span>
-        <input
-          name="priceMax"
-          type="number"
-          min={0}
-          defaultValue={initial?.priceMax ?? 25}
-          className="w-24 rounded-xl border border-slate-200 px-3 py-2.5 outline-none focus:border-brand-500"
-        />
-      </div>
       <div>
         <p className="mb-2 text-sm font-medium text-slate-700">Student levels offered</p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
