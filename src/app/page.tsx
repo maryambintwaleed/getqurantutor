@@ -22,7 +22,7 @@ export default async function Home() {
       <section className="bg-gradient-to-br from-brand-900 via-brand-800 to-brand-600 px-4 py-20 text-center text-white">
         <div className="mx-auto max-w-3xl">
           <p className="mb-3 inline-block rounded-full bg-white/10 px-4 py-1 text-sm font-medium text-brand-100">
-            Online Quran classes for families in the US, UK, Canada, Europe &amp; the Gulf
+            Online Quran classes for families worldwide
           </p>
           <h1 className="text-4xl font-bold leading-tight sm:text-5xl">
             Verified Quran teachers,
@@ -130,14 +130,14 @@ export default async function Home() {
           “We wanted a female teacher for our daughter in the same time zone. Three quotes came
           the same day — she finished Qaida in four months, alhamdulillah.”
         </p>
-        <p className="mt-2 text-sm text-slate-500">— Parent in Birmingham, UK</p>
+        <p className="mt-2 text-sm text-slate-500">— Parent</p>
       </section>
 
       {/* Tutor CTA */}
       <section className="bg-gradient-to-r from-accent-500 to-accent-600 px-4 py-14 text-center text-white">
         <h2 className="text-3xl font-bold">Are you a Quran teacher?</h2>
         <p className="mx-auto mt-2 max-w-xl text-accent-100">
-          Families in the US, UK, Canada, Europe and the Gulf are looking for teachers like you.
+          Families around the world are looking for teachers like you.
           Create your free profile, keep 100% of your fees — 20 free credits included.
         </p>
         <Link

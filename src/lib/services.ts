@@ -23,8 +23,8 @@ export const GENDER_OPTIONS = ["Female teacher", "Male teacher", "No preference"
 /**
  * A family and a teacher have to share a language before anything else works,
  * so the list covers both sides: the languages our teachers speak at home
- * (Pakistan, Egypt, Bangladesh, India, Nigeria) and the ones diaspora families
- * speak in the US, UK, Europe and the Gulf.
+ * (Pakistan, Egypt, Bangladesh, India, Nigeria) and the ones families speak
+ * around the world.
  */
 
 /** Shown first — the languages asked for most often. */
