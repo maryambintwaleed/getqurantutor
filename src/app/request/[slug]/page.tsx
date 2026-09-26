@@ -21,8 +21,6 @@ export default async function RequestPage({
         slug: service.slug,
         name: service.name,
         emoji: service.emoji,
-        priceMin: service.priceMin,
-        priceMax: service.priceMax,
         questions: buildQuestions(slug, grades),
       }}
     />

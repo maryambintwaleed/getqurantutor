@@ -30,7 +30,7 @@ export default async function Home() {
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-lg text-brand-100">
             Qaida, recitation, tajweed or hifdh — tell us what you need and qualified male and
-            female teachers send you their plan and price. Free for families.
+            female teachers send you their plan. Free for families.
           </p>
           <div className="mt-8">
             <ServiceSearch services={searchServices} />
@@ -77,9 +77,6 @@ export default async function Home() {
                 {s.name}
               </h3>
               <p className="mt-1 text-sm text-slate-500">{s.description}</p>
-              <p className="mt-3 text-sm font-medium text-accent-600">
-                ${s.priceMin}–${s.priceMax} / class
-              </p>
             </Link>
           ))}
         </div>
@@ -99,12 +96,12 @@ export default async function Home() {
               {
                 icon: MessagesSquare,
                 title: "2. Receive teacher quotes",
-                text: "Verified teachers send their plan, price and availability — usually within hours.",
+                text: "Verified teachers send their plan and availability — usually within hours.",
               },
               {
                 icon: UserCheck,
                 title: "3. Choose your teacher",
-                text: "Compare their plans, prices and credentials — many offer a free first class — then pick the one your family likes.",
+                text: "Compare their plans and credentials — many offer a free first class — then pick the one your family likes.",
               },
             ].map((step) => (
               <div key={step.title} className="rounded-2xl bg-white p-6 text-center shadow-sm">

@@ -63,9 +63,6 @@ export default async function OpportunityDetail({
               <MapPin size={15} /> {request.city}
             </span>
           )}
-          <span>
-            Avg. price: ${request.service.priceMin}–${request.service.priceMax} / class
-          </span>
           {request.tutorGender && (
             <span className="font-semibold text-brand-700">
               Wants a {request.tutorGender.toLowerCase()} teacher

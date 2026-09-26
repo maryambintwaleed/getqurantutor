@@ -18,8 +18,6 @@ export type WizardService = {
   slug: string;
   name: string;
   emoji: string;
-  priceMin: number;
-  priceMax: number;
   questions: WizardQuestion[];
 };
 
@@ -126,19 +124,13 @@ export default function Wizard({ service }: { service: WizardService }) {
           </button>
         </div>
 
-        {/* Progress + price range */}
+        {/* Progress */}
         <div className="px-6 pt-4">
           <div className="h-1.5 w-full overflow-hidden rounded-full bg-brand-100">
             <div
               className="h-full rounded-full bg-brand-600 transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
-          </div>
-          <div className="mt-3 flex items-center justify-between text-sm">
-            <span className="text-slate-500">Average price range:</span>
-            <span className="font-semibold text-slate-900">
-              ${service.priceMin} – ${service.priceMax} / class
-            </span>
           </div>
         </div>
 
