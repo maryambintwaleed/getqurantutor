@@ -29,7 +29,7 @@ export default async function Home() {
             <span className="text-accent-400"> matched to your family</span>
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-lg text-brand-100">
-            Islamic studies, Arabic and more — tell us what you need and qualified male and
+            Islamic studies, Arabic and more; tell us what you need and qualified male and
             female teachers send you their plan. Free for families.
           </p>
           <div className="mt-8">
