@@ -1,9 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { db } from "@/lib/db";
 import { createSession, destroySession, hashPassword, verifyPassword } from "@/lib/auth";
 import { claimPendingRequests } from "@/lib/pending";
+import { notifyTeacherToSubmitVoiceRecording } from "@/lib/notify";
 
 export type AuthState = { error?: string };
 
@@ -32,14 +34,19 @@ export async function register(_prev: AuthState, formData: FormData): Promise<Au
         ? { tutorProfile: { create: { balance: 20, gender } } } // 20 free starter credits
         : {}),
     },
+    include: { tutorProfile: true },
   });
   await createSession(user.id);
   if (role === "PARENT") {
     const claimed = await claimPendingRequests(user.id);
     if (claimed > 0) redirect("/requests"); // straight to the quotes they signed up for
   }
+  if (role === "TUTOR" && user.tutorProfile) {
+    after(() => notifyTeacherToSubmitVoiceRecording(user.tutorProfile!.id));
+  }
   redirect(role === "TUTOR" ? "/pro/profile" : "/");
 }
+
 
 export async function login(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();

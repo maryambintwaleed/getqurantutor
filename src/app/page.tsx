@@ -96,7 +96,7 @@ export default async function Home() {
               {
                 icon: MessagesSquare,
                 title: "2. Receive teacher quotes",
-                text: "Verified teachers send their plan and availability — usually within hours.",
+                text: "Verified teachers send their plan and availability; usually within hours.",
               },
               {
                 icon: UserCheck,

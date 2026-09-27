@@ -116,18 +116,40 @@ export async function notifyVerificationResult(tutorId: string) {
     heading: approved ? "Your teaching profile is approved" : "We could not verify you yet",
     body: approved
       ? [
-          "Families looking for what you teach are now visible in your dashboard, and you can send quotes.",
-          profile.reviewNote ? escape(profile.reviewNote) : "",
-          "Answering quickly is the single biggest thing that wins students.",
-        ].filter(Boolean)
+        "Families looking for what you teach are now visible in your dashboard, and you can send quotes.",
+        profile.reviewNote ? escape(profile.reviewNote) : "",
+        "Answering quickly is the single biggest thing that wins students.",
+      ].filter(Boolean)
       : [
-          profile.reviewNote
-            ? escape(profile.reviewNote)
-            : "We could not confirm your details from what was sent.",
-          "You can upload a new recording or ID and submit again.",
-        ],
+        profile.reviewNote
+          ? escape(profile.reviewNote)
+          : "We could not confirm your details from what was sent.",
+        "You can upload a new recording or ID and submit again.",
+      ],
     cta: approved
       ? { label: "See family requests", href: `${siteUrl()}/pro/opportunities` }
       : { label: "Try again", href: `${siteUrl()}/pro/verification` },
   });
 }
+
+/** Asks a newly registered teacher to submit their Quran recitation recording for verification. */
+export async function notifyTeacherToSubmitVoiceRecording(tutorId: string) {
+  const profile = await db.tutorProfile.findUnique({
+    where: { id: tutorId },
+    include: { user: true },
+  });
+  if (!profile || profile.status === "APPROVED") return;
+
+  await sendEmail({
+    to: profile.user.email,
+    subject: "Verification required: Please submit your Quran recitation recording",
+    heading: "Complete your verification to see family requests",
+    body: [
+      `Welcome to GetQuranTutor, ${escape(profile.user.name)}!`,
+      "Families trust us with their children, so we ask every teacher to submit a short recording of their Quran recitation before viewing student requests.",
+      "Uploading your recording takes only a minute and enables our team to verify your profile so you can start quoting on family requests.",
+    ],
+    cta: { label: "Upload Voice Recording", href: `${siteUrl()}/pro/verification` },
+  });
+}
+

@@ -141,3 +141,27 @@ model Recitation {
 
   tutor TutorProfile @relation(fields: [tutorId], references: [id], onDelete: Cascade)
 }
+
+model SupportConversation {
+  id        String           @id @default(cuid())
+  userId    String?
+  userName  String           @default("Guest")
+  userEmail String           @default("")
+  userRole  String           @default("GUEST") // GUEST | PARENT | TUTOR
+  status    String           @default("OPEN") // OPEN | CLOSED | RESOLVED
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  messages  SupportMessage[]
+}
+
+model SupportMessage {
+  id             String              @id @default(cuid())
+  conversationId String
+  sender         String              // USER | AI | ADMIN
+  senderName     String              @default("")
+  content        String
+  createdAt      DateTime            @default(now())
+
+  conversation SupportConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+

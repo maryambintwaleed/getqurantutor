@@ -16,6 +16,7 @@ import ProNavLink from "@/components/ProNavLink";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const pendingReviews = await db.tutorProfile.count({ where: { status: "SUBMITTED" } });
+  const openSupportCount = await db.supportConversation.count({ where: { status: "OPEN" } });
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/admin");
   if (user.role !== "ADMIN") redirect("/");
@@ -37,6 +38,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <ProNavLink href="/admin/verification" badge={pendingReviews > 0}>
             <ShieldCheck size={19} />
             Verification
+          </ProNavLink>
+          <ProNavLink href="/admin/support" badge={openSupportCount > 0}>
+            <Inbox size={19} />
+            Support Chat
           </ProNavLink>
           <ProNavLink href="/admin/tutors">
             <GraduationCap size={19} />
