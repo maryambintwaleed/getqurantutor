@@ -26,10 +26,10 @@ export default function ServiceSearch({ services }: { services: SearchService[] 
   }, [query, services]);
 
   return (
-    <div className="relative mx-auto w-full max-w-xl">
+    <div className="relative mx-auto w-full max-w-xl px-1 sm:px-0">
       <div className="flex overflow-hidden rounded-2xl bg-white shadow-xl shadow-brand-900/20">
-        <div className="flex items-center pl-4 text-slate-400">
-          <Search size={20} />
+        <div className="flex items-center pl-3.5 sm:pl-4 text-slate-400">
+          <Search size={18} className="sm:w-[20px] sm:h-[20px]" />
         </div>
         <input
           value={query}
@@ -40,11 +40,11 @@ export default function ServiceSearch({ services }: { services: SearchService[] 
           onFocus={() => setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           placeholder="What would you like to learn?"
-          className="w-full px-3 py-4 text-slate-900 outline-none placeholder:text-slate-400"
+          className="w-full px-2.5 sm:px-3 py-3.5 sm:py-4 text-sm sm:text-base text-slate-900 outline-none placeholder:text-slate-400 min-w-0"
         />
         <button
           onClick={() => matches[0] && router.push(`/request/${matches[0].slug}`)}
-          className="bg-accent-500 px-6 font-semibold text-white transition hover:bg-accent-600"
+          className="bg-accent-500 px-4 sm:px-6 text-xs sm:text-base font-semibold text-white transition hover:bg-accent-600 shrink-0"
         >
           Search
         </button>

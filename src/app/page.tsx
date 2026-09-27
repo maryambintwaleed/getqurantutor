@@ -19,40 +19,40 @@ export default async function Home() {
       <SiteHeader />
 
       {/* Hero */}
-      <section className="bg-gradient-to-br from-brand-900 via-brand-800 to-brand-600 px-4 py-20 text-center text-white">
+      <section className="bg-gradient-to-br from-brand-900 via-brand-800 to-brand-600 px-4 py-12 sm:py-20 text-center text-white">
         <div className="mx-auto max-w-3xl">
-          <p className="mb-3 inline-block rounded-full bg-white/10 px-4 py-1 text-sm font-medium text-brand-100">
+          <p className="mb-3 inline-block rounded-full bg-white/10 px-3 py-1 text-xs sm:text-sm font-medium text-brand-100">
             Online Quran and Islamic studies classes for families worldwide
           </p>
-          <h1 className="text-4xl font-bold leading-tight sm:text-5xl">
+          <h1 className="text-2xl sm:text-5xl font-bold leading-tight">
             Verified Quran teachers,
             <span className="text-accent-400"> matched to your family</span>
           </h1>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-brand-100">
+          <p className="mx-auto mt-3 sm:mt-4 max-w-xl text-sm sm:text-lg text-brand-100">
             Islamic studies, Arabic and more; tell us what you need and qualified male and
             female teachers send you their plan. Free for families.
           </p>
-          <div className="mt-8">
+          <div className="mt-6 sm:mt-8">
             <ServiceSearch services={searchServices} />
           </div>
-          <p className="mt-4 text-sm text-brand-200">
+          <p className="mt-3.5 sm:mt-4 text-xs sm:text-sm text-brand-200">
             Popular: Noorani Qaida · Quran Recitation · Hifdh · Tajweed
           </p>
         </div>
       </section>
 
       {/* Trust strip */}
-      <section className="border-b border-slate-100 bg-white px-4 py-6">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-10 gap-y-3 text-sm text-slate-600">
-          <span className="flex items-center gap-2">
-            <Users size={17} className="text-brand-600" /> Female teachers available for sisters &amp; children
+      <section className="border-b border-slate-100 bg-white px-4 py-5">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-6 sm:gap-x-10 gap-y-2.5 text-xs sm:text-sm text-slate-600">
+          <span className="flex items-center gap-1.5 sm:gap-2">
+            <Users size={16} className="text-brand-600 shrink-0" /> Female teachers available for sisters &amp; children
           </span>
-          <span className="flex items-center gap-2">
-            <ShieldCheck size={17} className="text-brand-600" /> Every teacher reviewed and
+          <span className="flex items-center gap-1.5 sm:gap-2">
+            <ShieldCheck size={16} className="text-brand-600 shrink-0" /> Every teacher reviewed and
             voice-checked before they meet a family
           </span>
-          <span className="flex items-center gap-2">
-            <Video size={17} className="text-brand-600" /> Online 1-to-1, parents welcome to sit in
+          <span className="flex items-center gap-1.5 sm:gap-2">
+            <Video size={16} className="text-brand-600 shrink-0" /> Online 1-to-1, parents welcome to sit in
           </span>
         </div>
       </section>

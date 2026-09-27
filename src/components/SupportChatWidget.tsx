@@ -165,28 +165,28 @@ export default function SupportChatWidget() {
   ];
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 font-sans">
+    <div className="fixed bottom-3 right-3 sm:bottom-5 sm:right-5 z-50 font-sans max-w-full">
       {/* Floating Toggle Button */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
           aria-label="Open Support Chat"
-          className="relative flex items-center gap-2.5 rounded-full bg-emerald-700 px-5 py-3.5 text-white shadow-xl hover:bg-emerald-800 transition-all transform hover:scale-105 active:scale-95 group"
+          className="relative flex items-center gap-2 rounded-full bg-emerald-700 px-4 py-2.5 sm:px-5 sm:py-3.5 text-white shadow-xl hover:bg-emerald-800 transition-all transform hover:scale-105 active:scale-95 group"
         >
           <div className="relative">
-            <MessageSquare size={22} className="group-hover:rotate-12 transition-transform" />
+            <MessageSquare size={19} className="group-hover:rotate-12 transition-transform sm:w-[22px] sm:h-[22px]" />
             {hasUnread && (
               <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-amber-400 animate-ping" />
             )}
           </div>
-          <span className="font-semibold text-sm tracking-wide">Support Chat</span>
+          <span className="font-semibold text-xs sm:text-sm tracking-wide">Support Chat</span>
           <span className="flex h-2 w-2 rounded-full bg-emerald-300 animate-pulse" />
         </button>
       )}
 
       {/* Expanded Chat Dialog */}
       {isOpen && (
-        <div className="flex flex-col w-[375px] sm:w-[420px] h-[580px] max-h-[85vh] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
+        <div className="flex flex-col w-[calc(100vw-1.5rem)] max-w-[420px] sm:w-[420px] h-[520px] sm:h-[580px] max-h-[82vh] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
           {/* Header */}
           <div className="flex items-center justify-between bg-gradient-to-r from-emerald-800 to-emerald-700 px-4 py-3.5 text-white">
             <div className="flex items-center gap-3">
