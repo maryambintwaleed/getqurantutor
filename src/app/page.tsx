@@ -127,7 +127,7 @@ export default async function Home() {
           “We wanted a female teacher for our daughter in the same time zone. Three quotes came
           the same day — she finished Qaida in four months, alhamdulillah.”
         </p>
-        <p className="mt-2 text-sm text-slate-500">— Parent</p>
+        <p className="mt-2 text-sm font-medium text-slate-500">— Sister Fatima H., Parent</p>
       </section>
 
       {/* Tutor CTA */}
