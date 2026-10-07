@@ -5,12 +5,7 @@ import {
   MessageSquare,
   X,
   Send,
-  Bot,
-  User,
   ShieldCheck,
-  Sparkles,
-  ExternalLink,
-  MessageCircle,
   Headphones,
   RefreshCw,
 } from "lucide-react";
@@ -21,11 +16,6 @@ interface Message {
   senderName?: string;
   content: string;
   createdAt: string;
-}
-
-interface SuggestedAction {
-  label: string;
-  url: string;
 }
 
 export default function SupportChatWidget() {
@@ -44,27 +34,27 @@ export default function SupportChatWidget() {
       setConversationId(savedId);
       fetchHistory(savedId);
     } else {
-      // Default welcome message
+      // Default welcome message from human support
       setMessages([
         {
           id: "welcome-1",
-          sender: "AI",
-          senderName: "GetQuranTutor AI",
+          sender: "ADMIN",
+          senderName: "Support Team",
           content:
-            "Assalamu Alaikum! 👋 Welcome to GetQuranTutor Support.\n\nHow can we assist you today? Feel free to ask about finding female tutors, pricing, tutor verification, or wallet credits.",
+            "Assalamu Alaikum! 👋 Welcome to GetQuranTutor Support.\n\nPlease leave your message below and our team will get back to you shortly.",
           createdAt: new Date().toISOString(),
         },
       ]);
     }
   }, []);
 
-  // Poll for admin replies if conversation exists and widget is open or minimized
+  // Poll for new admin replies
   useEffect(() => {
     if (!conversationId) return;
 
     const interval = setInterval(() => {
       fetchHistory(conversationId, true);
-    }, 10000);
+    }, 8000);
 
     return () => clearInterval(interval);
   }, [conversationId, isOpen]);
@@ -86,7 +76,6 @@ export default function SupportChatWidget() {
       if (res.ok) {
         const data = await res.json();
         if (data.messages && data.messages.length > 0) {
-          // Check if new admin message arrived
           if (silent && !isOpen) {
             const lastMsg = data.messages[data.messages.length - 1];
             if (lastMsg.sender === "ADMIN" && messages.length < data.messages.length) {
@@ -101,11 +90,11 @@ export default function SupportChatWidget() {
     }
   };
 
-  const handleSendMessage = async (textToSend?: string) => {
-    const text = (textToSend || input).trim();
+  const handleSendMessage = async () => {
+    const text = input.trim();
     if (!text || isLoading) return;
 
-    if (!textToSend) setInput("");
+    setInput("");
     setIsLoading(true);
 
     // Optimistic user message
@@ -146,9 +135,9 @@ export default function SupportChatWidget() {
         ...prev,
         {
           id: `err-${Date.now()}`,
-          sender: "AI",
-          senderName: "System Error",
-          content: "Sorry, we could not process your message right now. Please try again or reach out on WhatsApp.",
+          sender: "ADMIN",
+          senderName: "Support",
+          content: "Sorry, we could not send your message right now. Please try again.",
           createdAt: new Date().toISOString(),
         },
       ]);
@@ -156,13 +145,6 @@ export default function SupportChatWidget() {
       setIsLoading(false);
     }
   };
-
-  const QUICK_QUESTIONS = [
-    { label: "👩‍🏫 Female Tutors", prompt: "How do I find a female Quran tutor?" },
-    { label: "💰 Parent Pricing", prompt: "Is it free for families to request tutors?" },
-    { label: "🛡️ Tutor Verification", prompt: "How are Quran tutors verified?" },
-    { label: "💼 Tutor Credits", prompt: "How do credits work for teachers?" },
-  ];
 
   return (
     <div className="fixed bottom-3 right-3 sm:bottom-5 sm:right-5 z-50 font-sans max-w-full">
@@ -194,13 +176,12 @@ export default function SupportChatWidget() {
                 <Headphones size={20} />
               </div>
               <div>
-                <h3 className="font-semibold text-base leading-tight flex items-center gap-1.5">
+                <h3 className="font-semibold text-base leading-tight">
                   GetQuranTutor Support
-                  <Sparkles size={14} className="text-amber-300" />
                 </h3>
-                <p className="text-xs text-emerald-100 flex items-center gap-1">
+                <p className="text-xs text-emerald-100 flex items-center gap-1.5 mt-0.5">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Instant AI & Admin Live Support
+                  Support Team · Leave a message
                 </p>
               </div>
             </div>
@@ -224,25 +205,10 @@ export default function SupportChatWidget() {
             </div>
           </div>
 
-          {/* Quick Action Bar / FAQs */}
-          <div className="flex items-center gap-1.5 px-3 py-2 bg-slate-50 border-b border-slate-100 overflow-x-auto scrollbar-none text-xs">
-            {QUICK_QUESTIONS.map((item, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleSendMessage(item.prompt)}
-                disabled={isLoading}
-                className="whitespace-nowrap px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-700 hover:border-emerald-500 hover:text-emerald-700 hover:bg-emerald-50/50 transition-colors shadow-xs font-medium"
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-
           {/* Messages Body */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-slate-50/50">
             {messages.map((msg) => {
               const isUser = msg.sender === "USER";
-              const isAdmin = msg.sender === "ADMIN";
 
               return (
                 <div
@@ -252,13 +218,9 @@ export default function SupportChatWidget() {
                   <div className="flex items-center gap-1.5 mb-1 px-1 text-[11px] text-slate-400 font-medium">
                     {isUser ? (
                       <span>You</span>
-                    ) : isAdmin ? (
-                      <span className="flex items-center gap-1 text-amber-700 font-semibold">
-                        <ShieldCheck size={12} /> Live Admin Support ({msg.senderName || "Admin"})
-                      </span>
                     ) : (
-                      <span className="flex items-center gap-1 text-emerald-700 font-semibold">
-                        <Bot size={12} /> GetQuranTutor AI
+                      <span className="flex items-center gap-1 text-emerald-800 font-semibold">
+                        <ShieldCheck size={12} className="text-emerald-700" /> Support Team {msg.senderName && msg.senderName !== "GetQuranTutor AI Assistant" && msg.senderName !== "GetQuranTutor AI" ? `(${msg.senderName})` : ""}
                       </span>
                     )}
                   </div>
@@ -267,8 +229,6 @@ export default function SupportChatWidget() {
                     className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                       isUser
                         ? "bg-emerald-700 text-white rounded-br-xs shadow-sm"
-                        : isAdmin
-                        ? "bg-amber-50 border border-amber-200 text-slate-900 rounded-bl-xs shadow-sm"
                         : "bg-white border border-slate-200 text-slate-800 rounded-bl-xs shadow-xs"
                     }`}
                   >
@@ -279,28 +239,13 @@ export default function SupportChatWidget() {
             })}
 
             {isLoading && (
-              <div className="flex items-center gap-2 p-3 rounded-2xl bg-white border border-slate-200 text-xs text-slate-500 max-w-[70%]">
-                <Bot size={16} className="animate-spin text-emerald-600" />
-                <span>AI assistant is typing...</span>
+              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-400 max-w-[65%]">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-ping" />
+                <span>Sending message...</span>
               </div>
             )}
 
             <div ref={messagesEndRef} />
-          </div>
-
-          {/* Direct WhatsApp Contact Banner */}
-          <div className="px-3 py-1.5 bg-emerald-50/80 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span className="text-emerald-800 font-medium flex items-center gap-1">
-              <MessageCircle size={14} className="text-emerald-600" /> Need instant WhatsApp reply?
-            </span>
-            <a
-              href="https://wa.me/15551234567?text=Hello%20GetQuranTutor%20Support"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-emerald-700 hover:text-emerald-900 font-semibold underline flex items-center gap-0.5"
-            >
-              Open WhatsApp <ExternalLink size={11} />
-            </a>
           </div>
 
           {/* Footer Input Form */}
@@ -315,7 +260,7 @@ export default function SupportChatWidget() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask anything or leave a message..."
+              placeholder="Write your message..."
               disabled={isLoading}
               className="flex-1 rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
             />

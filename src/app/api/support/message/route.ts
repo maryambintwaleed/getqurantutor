@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
-import { generateAIResponse } from "@/lib/support-ai";
 
 export async function POST(req: Request) {
   try {
@@ -36,8 +35,8 @@ export async function POST(req: Request) {
       });
     }
 
-    // Save user message
-    const userMessage = await db.supportMessage.create({
+    // Save user message directly without automated bot responses
+    await db.supportMessage.create({
       data: {
         conversationId: conversation.id,
         sender: "USER",
@@ -46,23 +45,10 @@ export async function POST(req: Request) {
       },
     });
 
-    // Generate AI Assistant Response
-    const aiResult = generateAIResponse(content.trim());
-    
-    // Save AI response message
-    const aiMessage = await db.supportMessage.create({
-      data: {
-        conversationId: conversation.id,
-        sender: "AI",
-        senderName: "GetQuranTutor AI Assistant",
-        content: aiResult.reply,
-      },
-    });
-
-    // Update conversation updatedAt
+    // Update conversation status and timestamp
     await db.supportConversation.update({
       where: { id: conversation.id },
-      data: { updatedAt: new Date() },
+      data: { updatedAt: new Date(), status: "OPEN" },
     });
 
     const updatedMessages = await db.supportMessage.findMany({
@@ -73,7 +59,6 @@ export async function POST(req: Request) {
     return NextResponse.json({
       conversationId: conversation.id,
       messages: updatedMessages,
-      suggestedAction: aiResult.suggestedAction,
     });
   } catch (error) {
     console.error("Support message API error:", error);

@@ -131,7 +131,7 @@ export default function AdminSupportPage() {
             <MessageSquare className="text-emerald-700" size={26} /> Support Chat Inbox
           </h1>
           <p className="text-sm text-slate-500">
-            View live user support conversations, AI automated responses, and send official admin replies.
+            View user support messages and reply directly.
           </p>
         </div>
         <button
@@ -290,13 +290,9 @@ export default function AdminSupportPage() {
                           <span className="flex items-center gap-1 text-slate-700 font-semibold">
                             <User size={12} /> {selectedConversation.userName}
                           </span>
-                        ) : isAdmin ? (
-                          <span className="flex items-center gap-1 text-emerald-700 font-semibold">
-                            <ShieldCheck size={12} /> Admin ({msg.senderName})
-                          </span>
                         ) : (
-                          <span className="flex items-center gap-1 text-amber-700 font-semibold">
-                            <Bot size={12} /> AI Assistant
+                          <span className="flex items-center gap-1 text-emerald-700 font-semibold">
+                            <ShieldCheck size={12} /> Support ({msg.senderName || "Admin"})
                           </span>
                         )}
                         <span>•</span>
@@ -349,7 +345,7 @@ export default function AdminSupportPage() {
               <MessageSquare size={40} className="mb-2 text-slate-300" />
               <p className="font-medium text-slate-600">Select a conversation to inspect</p>
               <p className="text-xs text-slate-400 mt-1">
-                You can reply to users, check AI response history, and update resolution status.
+                You can reply to users and update ticket resolution status.
               </p>
             </div>
           )}
