@@ -41,7 +41,7 @@ export default function SupportChatWidget() {
           sender: "ADMIN",
           senderName: "Support Team",
           content:
-            "Assalamu Alaikum! 👋 Welcome to GetQuranTutor Support.\n\nPlease leave your message below and our team will get back to you shortly.",
+            "Assalamu Alaikum! 👋 Welcome to GetQuranTutor Support.\n\nPlease leave your message below and our team will get back to you in a few hours.",
           createdAt: new Date().toISOString(),
         },
       ]);
