@@ -51,7 +51,7 @@ export default function SupportChatWidget() {
           sender: "AI",
           senderName: "GetQuranTutor AI",
           content:
-            "Assalamu Alaikum! 👋 Welcome to **GetQuranTutor Support**.\n\nHow can we assist you today? Feel free to ask about finding female tutors, pricing, tutor verification, or wallet credits.",
+            "Assalamu Alaikum! 👋 Welcome to GetQuranTutor Support.\n\nHow can we assist you today? Feel free to ask about finding female tutors, pricing, tutor verification, or wallet credits.",
           createdAt: new Date().toISOString(),
         },
       ]);
@@ -272,7 +272,7 @@ export default function SupportChatWidget() {
                         : "bg-white border border-slate-200 text-slate-800 rounded-bl-xs shadow-xs"
                     }`}
                   >
-                    <div className="whitespace-pre-wrap">{msg.content}</div>
+                    <div className="whitespace-pre-wrap">{msg.content.replaceAll("*", "")}</div>
                   </div>
                 </div>
               );

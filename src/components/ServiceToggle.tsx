@@ -17,7 +17,7 @@ export default function ServiceToggle({
       disabled={pending}
       role="switch"
       aria-checked={enabled}
-      className={`relative h-7 w-12 rounded-full transition ${
+      className={`relative h-7 w-12 shrink-0 rounded-full transition ${
         enabled ? "bg-brand-600" : "bg-slate-200"
       } ${pending ? "opacity-60" : ""}`}
     >

@@ -312,7 +312,7 @@ export default function AdminSupportPage() {
                             : "bg-amber-50/90 border border-amber-200 text-amber-950 shadow-xs"
                         }`}
                       >
-                        <div className="whitespace-pre-wrap">{msg.content}</div>
+                        <div className="whitespace-pre-wrap">{msg.content.replaceAll("*", "")}</div>
                       </div>
                     </div>
                   );
