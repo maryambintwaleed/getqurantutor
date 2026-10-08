@@ -1,10 +1,17 @@
-import { BadgeCheck, Clock, FileText, ShieldCheck } from "lucide-react";
+import { BadgeCheck, Clock, FileText, ShieldCheck, Mail, CheckCircle2, Send } from "lucide-react";
 import { db } from "@/lib/db";
 import { reviewTutor } from "@/actions/verification";
+import { sendVerificationReminders } from "@/actions/admin";
 import { timeAgo } from "@/lib/format";
+import SubmitButton from "@/components/SubmitButton";
 
-export default async function AdminVerification() {
-  const [waiting, decided] = await Promise.all([
+export default async function AdminVerification({
+  searchParams,
+}: {
+  searchParams: Promise<{ reminded?: string }>;
+}) {
+  const { reminded } = (await searchParams) || {};
+  const [waiting, decided, unverifiedCount] = await Promise.all([
     db.tutorProfile.findMany({
       where: { status: "SUBMITTED" },
       include: { user: true, services: { include: { service: true } } },
@@ -16,15 +23,48 @@ export default async function AdminVerification() {
       orderBy: { reviewedAt: "desc" },
       take: 10,
     }),
+    db.tutorProfile.count({
+      where: { status: { in: ["PENDING", "REJECTED"] } },
+    }),
   ]);
 
   return (
     <>
-      <h1 className="text-3xl font-bold text-slate-900">Verification</h1>
-      <p className="mt-2 text-slate-500">
-        Listen to the recitation, check the ID name matches, and confirm the voice matches the
-        gender on their profile. Approving deletes their ID document.
-      </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">Verification</h1>
+          <p className="mt-1 text-slate-500 text-sm">
+            Listen to the recitation, check the ID name matches, and confirm the voice matches the
+            gender on their profile. Approving deletes their ID document.
+          </p>
+        </div>
+      </div>
+
+      {reminded && (
+        <div className="mt-4 rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-emerald-800 text-sm font-medium flex items-center gap-2">
+          <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
+          Successfully sent verification reminder emails to {reminded} unverified teacher(s)!
+        </div>
+      )}
+
+      {/* Broadcast Reminder to Unverified Teachers */}
+      <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h3 className="font-semibold text-slate-900 flex items-center gap-2 text-base">
+            <Mail size={18} className="text-brand-600" />
+            Unverified Teachers ({unverifiedCount})
+          </h3>
+          <p className="mt-1 text-xs text-slate-500">
+            Send an email reminder to all registered teachers who haven&apos;t completed their Quran recitation and ID application.
+          </p>
+        </div>
+        <form action={sendVerificationReminders}>
+          <SubmitButton className="inline-flex items-center gap-2 rounded-full bg-brand-600 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-brand-700 transition disabled:opacity-50 shrink-0">
+            <Send size={15} />
+            Email {unverifiedCount} Unverified Teachers
+          </SubmitButton>
+        </form>
+      </div>
 
       <h2 className="mt-8 flex items-center gap-2 text-lg font-bold text-slate-900">
         <Clock size={18} className="text-accent-600" />

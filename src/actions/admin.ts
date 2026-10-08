@@ -125,3 +125,45 @@ export async function deleteRequest(formData: FormData) {
   await db.request.delete({ where: { id } });
   revalidateAdmin();
 }
+
+function escapeHtml(text: string) {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+export async function sendVerificationReminders() {
+  await requireAdmin();
+
+  const unverified = await db.tutorProfile.findMany({
+    where: {
+      status: { in: ["PENDING", "REJECTED"] },
+    },
+    include: { user: true },
+  });
+
+  const { sendEmail, siteUrl } = await import("@/lib/email");
+
+  let count = 0;
+  for (const tutor of unverified) {
+    if (!tutor.user?.email) continue;
+    await sendEmail({
+      to: tutor.user.email,
+      subject: "Action Required: Please complete your teacher verification",
+      heading: "Apply for verification to start receiving student requests",
+      body: [
+        `Assalamu Alaikum ${escapeHtml(tutor.user.name)},`,
+        "You registered as a Quran teacher on GetQuranTutor, but your teaching profile has not been verified yet.",
+        "Families looking for Quran, Tajweed, and Arabic classes are posting new requests every day. To ensure child safety and authenticity, only verified teachers can view student opportunities and send quotes.",
+        "Applying for verification takes just 2 minutes — simply upload a short Quran recitation audio sample and your ID document to get approved.",
+      ],
+      cta: {
+        label: "Complete Verification Now",
+        href: `${siteUrl()}/pro/verification`,
+      },
+    });
+    count++;
+  }
+
+  revalidateAdmin();
+  redirect(`/admin/verification?reminded=${count}`);
+}
+
