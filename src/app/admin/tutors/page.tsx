@@ -1,3 +1,4 @@
+import { Download, Volume2, CheckCircle2, Clock, XCircle, AlertCircle } from "lucide-react";
 import { db } from "@/lib/db";
 import { adjustCredits, deleteUser } from "@/actions/admin";
 import { timeAgo } from "@/lib/format";
@@ -11,6 +12,7 @@ export default async function AdminTutors() {
         include: {
           services: { include: { service: true } },
           quotes: true,
+          recitation: { select: { tutorId: true } },
         },
       },
     },
@@ -30,7 +32,29 @@ export default async function AdminTutors() {
             <div key={t.id} className="rounded-2xl border border-slate-200 bg-white p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="font-bold text-slate-900">{t.name}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-bold text-slate-900">{t.name}</p>
+                    {p.status === "APPROVED" && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 border border-emerald-200">
+                        <CheckCircle2 size={12} /> Verified
+                      </span>
+                    )}
+                    {p.status === "SUBMITTED" && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 border border-amber-200">
+                        <Clock size={12} /> In Review
+                      </span>
+                    )}
+                    {p.status === "REJECTED" && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700 border border-rose-200">
+                        <XCircle size={12} /> Rejected
+                      </span>
+                    )}
+                    {p.status === "PENDING" && (
+                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+                        Pending
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-slate-500">
                     {t.email} · joined {timeAgo(t.createdAt)}
                   </p>
@@ -68,6 +92,35 @@ export default async function AdminTutors() {
                   </p>
                 </div>
               </div>
+
+              {p.bio && <p className="mt-3 text-sm text-slate-600">{p.bio}</p>}
+
+              {/* Recitation Audio Player & Download */}
+              {p.recitation || p.audioType || p.audioUrl ? (
+                <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl bg-slate-50 p-3 border border-slate-100">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+                    <Volume2 size={15} className="text-brand-600 shrink-0" />
+                    <span>Quran Recitation:</span>
+                  </div>
+                  <audio
+                    controls
+                    preload="none"
+                    src={p.audioUrl || `/admin/verification/audio/${p.id}`}
+                    className="h-8 max-w-full sm:max-w-md flex-1"
+                  />
+                  <a
+                    href={`/admin/verification/audio/${p.id}?download=1`}
+                    download
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:border-brand-500 hover:text-brand-700 transition"
+                  >
+                    <Download size={14} /> Download Sample
+                  </a>
+                </div>
+              ) : (
+                <p className="mt-2 text-xs text-slate-400 italic flex items-center gap-1">
+                  <AlertCircle size={13} /> No recitation audio on file
+                </p>
+              )}
 
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {p.services.map((ts) => (

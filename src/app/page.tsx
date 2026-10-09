@@ -1,13 +1,38 @@
 import Link from "next/link";
 import { connection } from "next/server";
-import { ClipboardList, MessagesSquare, UserCheck, Star, ShieldCheck, Video, Users } from "lucide-react";
+import {
+  ClipboardList,
+  MessagesSquare,
+  UserCheck,
+  Star,
+  ShieldCheck,
+  Video,
+  Users,
+  BadgeCheck,
+  Headphones,
+  ArrowRight,
+  Award,
+} from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import ServiceSearch from "@/components/ServiceSearch";
+import RecitationPlayer from "@/components/RecitationPlayer";
 import { db } from "@/lib/db";
 
 export default async function Home() {
   await connection(); // render per request so admin category changes appear immediately
-  const services = await db.service.findMany({ where: { active: true } });
+  const [services, verifiedTutors] = await Promise.all([
+    db.service.findMany({ where: { active: true } }),
+    db.tutorProfile.findMany({
+      where: { status: "APPROVED" },
+      include: {
+        user: { select: { name: true } },
+        services: { include: { service: true } },
+        recitation: { select: { tutorId: true } },
+      },
+      orderBy: { ranking: "desc" },
+      take: 6,
+    }),
+  ]);
   const searchServices = services.map((s) => ({
     slug: s.slug,
     name: s.name,
@@ -81,6 +106,143 @@ export default async function Home() {
           ))}
         </div>
       </section>
+
+      {/* Verified Teachers Showcase with Audio Samples */}
+      {verifiedTutors.length > 0 && (
+        <section className="bg-slate-50 border-y border-slate-200/70 px-4 py-16">
+          <div className="mx-auto max-w-6xl">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+              <div>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-3 py-1 text-xs font-semibold text-brand-800">
+                  <Headphones size={13} /> Voice-Verified Tutors
+                </span>
+                <h2 className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900">
+                  Listen to Our Verified Teachers
+                </h2>
+                <p className="mt-1 text-sm text-slate-600 max-w-xl">
+                  Every teacher has had their Tajweed and identity reviewed. Listen to their audio samples below and start with a free trial class.
+                </p>
+              </div>
+              <Link
+                href="/tutors"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 hover:text-brand-800 shrink-0"
+              >
+                Browse all teachers <ArrowRight size={16} />
+              </Link>
+            </div>
+
+            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {verifiedTutors.map((t) => {
+                const languages: string[] = JSON.parse(t.languages || "[]");
+                const hasAudio = !!(t.recitation || t.audioType || t.audioUrl);
+                const firstCourse = t.services[0]?.service;
+
+                return (
+                  <div
+                    key={t.id}
+                    className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-brand-300 hover:shadow-md"
+                  >
+                    <div>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full font-bold text-base ${
+                              t.gender === "Female"
+                                ? "bg-rose-100 text-rose-700"
+                                : "bg-brand-100 text-brand-700"
+                            }`}
+                          >
+                            {t.user.name.charAt(0)}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <h3 className="font-semibold text-slate-900 leading-tight">
+                                {t.user.name}
+                              </h3>
+                              <BadgeCheck size={16} className="text-emerald-600 shrink-0" />
+                            </div>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                              {t.country || "Online"} {t.timezone ? `(${t.timezone})` : ""}
+                            </p>
+                          </div>
+                        </div>
+
+                        {t.gender && (
+                          <span
+                            className={`rounded-full px-2.5 py-0.5 text-xs font-medium shrink-0 ${
+                              t.gender === "Female"
+                                ? "bg-rose-50 text-rose-700 border border-rose-200"
+                                : "bg-slate-100 text-slate-700"
+                            }`}
+                          >
+                            {t.gender === "Female" ? "Sister / Female" : "Male"}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Badges */}
+                      <div className="mt-3 flex flex-wrap gap-1.5 text-xs">
+                        {t.ijazah && (
+                          <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 font-medium text-amber-800 border border-amber-200">
+                            <Award size={12} /> Certified Ijazah
+                          </span>
+                        )}
+                        {t.hafiz && (
+                          <span className="inline-flex items-center gap-1 rounded-md bg-brand-50 px-2 py-0.5 font-medium text-brand-700 border border-brand-200">
+                            {t.gender === "Female" ? "Hafiza" : "Hafiz"}
+                          </span>
+                        )}
+                        {languages.slice(0, 3).map((lang) => (
+                          <span key={lang} className="rounded-md bg-slate-100 px-2 py-0.5 text-slate-600">
+                            {lang}
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* Bio */}
+                      {t.bio && (
+                        <p className="mt-3 text-xs sm:text-sm text-slate-600 line-clamp-2">
+                          {t.bio}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      {/* Audio Recitation Player */}
+                      <div className="mt-4">
+                        {hasAudio ? (
+                          <RecitationPlayer
+                            tutorId={t.id}
+                            audioUrl={t.audioUrl || undefined}
+                            tutorName={t.user.name}
+                          />
+                        ) : (
+                          <div className="rounded-xl bg-slate-50 p-2.5 text-center text-xs text-slate-400">
+                            Recitation available on profile
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Call to action */}
+                      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                        <span className="text-xs text-slate-500 font-medium">
+                          1st class free
+                        </span>
+                        <Link
+                          href={firstCourse ? `/request/${firstCourse.slug}` : "/request/quran-recitation"}
+                          className="rounded-full bg-brand-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-700"
+                        >
+                          Book Free Trial
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* How it works */}
       <section className="bg-slate-50 px-4 py-16">
