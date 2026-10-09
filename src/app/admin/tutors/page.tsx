@@ -1,6 +1,6 @@
-import { Download, Volume2, CheckCircle2, Clock, XCircle, AlertCircle } from "lucide-react";
+import { Download, Volume2, CheckCircle2, Clock, XCircle, AlertCircle, Edit2 } from "lucide-react";
 import { db } from "@/lib/db";
-import { adjustCredits, deleteUser } from "@/actions/admin";
+import { adjustCredits, deleteUser, updateTeacherProfile } from "@/actions/admin";
 import { timeAgo } from "@/lib/format";
 import { formatZone } from "@/lib/geo";
 
@@ -143,6 +143,99 @@ export default async function AdminTutors() {
                   <span className="text-xs text-slate-400">No courses selected yet</span>
                 )}
               </div>
+
+              {/* Quick Edit Details */}
+              <details className="mt-3 rounded-xl border border-slate-200 bg-slate-50/50 p-3">
+                <summary className="cursor-pointer text-xs font-semibold text-brand-700 hover:text-brand-800 flex items-center gap-1.5 select-none">
+                  <Edit2 size={13} /> Edit Profile Details (Country, Timezone, Name, Bio)
+                </summary>
+                <form action={updateTeacherProfile} className="mt-3 space-y-3 pt-3 border-t border-slate-200">
+                  <input type="hidden" name="tutorId" value={p.id} />
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <div>
+                      <label className="block text-xs font-medium text-slate-700 mb-1">Name</label>
+                      <input
+                        name="name"
+                        defaultValue={t.name}
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs outline-none focus:border-brand-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-700 mb-1">Country</label>
+                      <input
+                        name="country"
+                        defaultValue={p.country}
+                        placeholder="e.g. Pakistan, United States, Egypt"
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs outline-none focus:border-brand-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-700 mb-1">Time zone</label>
+                      <input
+                        name="timezone"
+                        defaultValue={p.timezone}
+                        placeholder="e.g. Asia/Karachi, Europe/London"
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs outline-none focus:border-brand-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <div>
+                      <label className="block text-xs font-medium text-slate-700 mb-1">Gender</label>
+                      <select
+                        name="gender"
+                        defaultValue={p.gender || "Male"}
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs outline-none focus:border-brand-500"
+                      >
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-700 mb-1">Verification Status</label>
+                      <select
+                        name="status"
+                        defaultValue={p.status}
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs outline-none focus:border-brand-500"
+                      >
+                        <option value="APPROVED">APPROVED (Verified)</option>
+                        <option value="SUBMITTED">SUBMITTED (In Review)</option>
+                        <option value="PENDING">PENDING</option>
+                        <option value="REJECTED">REJECTED</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-4 pt-4">
+                      <label className="flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer">
+                        <input type="checkbox" name="ijazah" defaultChecked={p.ijazah} className="rounded accent-brand-600" />
+                        Ijazah
+                      </label>
+                      <label className="flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer">
+                        <input type="checkbox" name="hafiz" defaultChecked={p.hafiz} className="rounded accent-brand-600" />
+                        Hafiz/Hafiza
+                      </label>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Bio</label>
+                    <textarea
+                      name="bio"
+                      defaultValue={p.bio}
+                      rows={2}
+                      placeholder="Teacher bio..."
+                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs outline-none focus:border-brand-500"
+                    />
+                  </div>
+
+                  <div className="flex justify-end">
+                    <button className="rounded-lg bg-brand-600 px-4 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-brand-700">
+                      Save Profile Changes
+                    </button>
+                  </div>
+                </form>
+              </details>
 
               <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3">
                 <form action={adjustCredits} className="flex items-center gap-2">

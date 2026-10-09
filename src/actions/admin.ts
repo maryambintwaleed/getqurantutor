@@ -167,3 +167,45 @@ export async function sendVerificationReminders() {
   redirect(`/admin/verification?reminded=${count}`);
 }
 
+export async function updateTeacherProfile(formData: FormData) {
+  await requireAdmin();
+  const tutorId = String(formData.get("tutorId") ?? "");
+  const name = String(formData.get("name") ?? "").trim();
+  const country = String(formData.get("country") ?? "").trim();
+  const timezone = String(formData.get("timezone") ?? "").trim();
+  const gender = String(formData.get("gender") ?? "").trim();
+  const bio = String(formData.get("bio") ?? "").trim().slice(0, 800);
+  const status = String(formData.get("status") ?? "").trim();
+  const ijazah = formData.get("ijazah") === "on";
+  const hafiz = formData.get("hafiz") === "on";
+
+  if (!tutorId) return;
+
+  const tutor = await db.tutorProfile.findUnique({
+    where: { id: tutorId },
+    include: { user: true },
+  });
+  if (!tutor) return;
+
+  await db.$transaction([
+    ...(name && name !== tutor.user.name
+      ? [db.user.update({ where: { id: tutor.userId }, data: { name } })]
+      : []),
+    db.tutorProfile.update({
+      where: { id: tutorId },
+      data: {
+        country,
+        timezone,
+        gender,
+        bio,
+        ijazah,
+        hafiz,
+        ...(status ? { status } : {}),
+      },
+    }),
+  ]);
+
+  revalidateAdmin();
+  revalidatePath("/tutors");
+}
+

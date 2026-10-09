@@ -21,7 +21,13 @@ export type WizardService = {
   questions: WizardQuestion[];
 };
 
-export default function Wizard({ service }: { service: WizardService }) {
+export default function Wizard({
+  service,
+  preferredTeacher,
+}: {
+  service: WizardService;
+  preferredTeacher?: string;
+}) {
   const router = useRouter();
   const totalSteps = service.questions.length + 1; // + final details step
   const [step, setStep] = useState(0);
@@ -123,6 +129,12 @@ export default function Wizard({ service }: { service: WizardService }) {
             <X size={22} />
           </button>
         </div>
+
+        {preferredTeacher && (
+          <div className="bg-brand-50 border-b border-brand-100 px-6 py-2.5 text-center text-xs font-medium text-brand-800">
+            Requesting class with <span className="font-bold text-brand-950">{preferredTeacher}</span>
+          </div>
+        )}
 
         {/* Progress */}
         <div className="px-6 pt-4">

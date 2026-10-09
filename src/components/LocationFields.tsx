@@ -51,9 +51,9 @@ export default function LocationFields({
           value={country}
           onChange={(next) => {
             setCountry(next);
-            // Save a teacher the second lookup when the answer is obvious.
+            // Automatically set the appropriate time zone when country changes
             const guess = COUNTRY_DEFAULT_ZONE[next];
-            if (guess && !zone) setZone(guess);
+            if (guess) setZone(guess);
           }}
           options={countryOptions}
           emptyText="No country matches that"

@@ -16,6 +16,7 @@ import {
 import SiteHeader from "@/components/SiteHeader";
 import ServiceSearch from "@/components/ServiceSearch";
 import RecitationPlayer from "@/components/RecitationPlayer";
+import { formatZone } from "@/lib/geo";
 import { db } from "@/lib/db";
 
 export default async function Home() {
@@ -136,6 +137,9 @@ export default async function Home() {
                 const languages: string[] = JSON.parse(t.languages || "[]");
                 const hasAudio = !!(t.recitation || t.audioType || t.audioUrl);
                 const firstCourse = t.services[0]?.service;
+                const requestHref = firstCourse
+                  ? `/request/${firstCourse.slug}?tutor=${t.id}&teacher=${encodeURIComponent(t.user.name)}`
+                  : `/request/quran-recitation?tutor=${t.id}&teacher=${encodeURIComponent(t.user.name)}`;
 
                 return (
                   <div
@@ -152,7 +156,7 @@ export default async function Home() {
                                 : "bg-brand-100 text-brand-700"
                             }`}
                           >
-                            {t.user.name.charAt(0)}
+                            {(t.user.name.charAt(0) || "Q").toUpperCase()}
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5">
@@ -162,7 +166,8 @@ export default async function Home() {
                               <BadgeCheck size={16} className="text-emerald-600 shrink-0" />
                             </div>
                             <p className="text-xs text-slate-500 mt-0.5">
-                              {t.country || "Online"} {t.timezone ? `(${t.timezone})` : ""}
+                              {t.country || "Online"}
+                              {t.timezone ? ` · ${formatZone(t.timezone)}` : ""}
                             </p>
                           </div>
                         </div>
@@ -200,11 +205,9 @@ export default async function Home() {
                       </div>
 
                       {/* Bio */}
-                      {t.bio && (
-                        <p className="mt-3 text-xs sm:text-sm text-slate-600 line-clamp-2">
-                          {t.bio}
-                        </p>
-                      )}
+                      <p className="mt-3 text-xs sm:text-sm text-slate-600 line-clamp-2 min-h-[2.5rem]">
+                        {t.bio || "Certified Quran & Tajweed teacher dedicated to helping students learn with proper pronunciation, patience, and care."}
+                      </p>
                     </div>
 
                     <div>
@@ -229,7 +232,7 @@ export default async function Home() {
                           1st class free
                         </span>
                         <Link
-                          href={firstCourse ? `/request/${firstCourse.slug}` : "/request/quran-recitation"}
+                          href={requestHref}
                           className="rounded-full bg-brand-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-700"
                         >
                           Book Free Trial

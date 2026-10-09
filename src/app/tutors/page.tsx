@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import RecitationPlayer from "@/components/RecitationPlayer";
+import { formatZone } from "@/lib/geo";
 import { db } from "@/lib/db";
 
 export const metadata = {
@@ -163,6 +164,9 @@ export default async function TutorsDirectory({
               const languages: string[] = JSON.parse(t.languages || "[]");
               const hasAudio = !!(t.recitation || t.audioType || t.audioUrl);
               const firstCourse = t.services[0]?.service;
+              const requestHref = firstCourse
+                ? `/request/${firstCourse.slug}?tutor=${t.id}&teacher=${encodeURIComponent(t.user.name)}`
+                : `/request/quran-recitation?tutor=${t.id}&teacher=${encodeURIComponent(t.user.name)}`;
 
               return (
                 <div
@@ -179,7 +183,7 @@ export default async function TutorsDirectory({
                               : "bg-brand-100 text-brand-700"
                           }`}
                         >
-                          {t.user.name.charAt(0)}
+                          {(t.user.name.charAt(0) || "Q").toUpperCase()}
                         </div>
                         <div>
                           <div className="flex items-center gap-1.5">
@@ -189,7 +193,8 @@ export default async function TutorsDirectory({
                             <BadgeCheck size={16} className="text-emerald-600 shrink-0" />
                           </div>
                           <p className="text-xs text-slate-500 mt-0.5">
-                            {t.country || "Online"} {t.timezone ? `(${t.timezone})` : ""}
+                            {t.country || "Online"}
+                            {t.timezone ? ` · ${formatZone(t.timezone)}` : ""}
                           </p>
                         </div>
                       </div>
@@ -230,11 +235,9 @@ export default async function TutorsDirectory({
                     </div>
 
                     {/* Bio */}
-                    {t.bio && (
-                      <p className="mt-3 text-xs sm:text-sm text-slate-600 line-clamp-3">
-                        {t.bio}
-                      </p>
-                    )}
+                    <p className="mt-3 text-xs sm:text-sm text-slate-600 line-clamp-3 min-h-[2.5rem]">
+                      {t.bio || "Certified Quran & Tajweed teacher dedicated to helping students learn with proper pronunciation, patience, and care."}
+                    </p>
 
                     {/* Courses */}
                     {t.services.length > 0 && (
@@ -273,7 +276,7 @@ export default async function TutorsDirectory({
                         <Sparkles size={13} /> 1st class free
                       </span>
                       <Link
-                        href={firstCourse ? `/request/${firstCourse.slug}` : "/request/quran-recitation"}
+                        href={requestHref}
                         className="rounded-full bg-brand-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-700 shadow-sm"
                       >
                         Book Free Trial

@@ -6,11 +6,14 @@ import { buildQuestions } from "@/lib/services";
 
 export default async function RequestPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ tutor?: string; teacher?: string }>;
 }) {
   await connection();
   const { slug } = await params;
+  const { teacher } = (await searchParams) || {};
   const service = await db.service.findUnique({ where: { slug } });
   if (!service || !service.active) notFound();
 
@@ -23,6 +26,7 @@ export default async function RequestPage({
         emoji: service.emoji,
         questions: buildQuestions(slug, grades),
       }}
+      preferredTeacher={teacher}
     />
   );
 }
