@@ -1,23 +1,19 @@
 import Link from "next/link";
 import { connection } from "next/server";
 import {
-  BadgeCheck,
   Headphones,
-  Award,
   Users,
   Video,
   ShieldCheck,
-  Sparkles,
 } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
-import RecitationPlayer from "@/components/RecitationPlayer";
-import { formatZone } from "@/lib/geo";
+import TeacherCard from "@/components/TeacherCard";
 import { db } from "@/lib/db";
 
 export const metadata = {
   title: "Verified Quran Teachers | GetQuranTutor",
   description:
-    "Listen to recitations from verified female and male Quran teachers with certified Ijazah and Hafiz qualifications. Book your free trial class today.",
+    "Listen to recitations from verified female and male Quran teachers with certified Ijazah and Hafiz qualifications.",
 };
 
 export default async function TutorsDirectory({
@@ -66,8 +62,8 @@ export default async function TutorsDirectory({
             Meet Our Quran Teachers
           </h1>
           <p className="mx-auto mt-2 max-w-xl text-sm sm:text-base text-brand-100">
-            Listen to recitation samples, check qualifications, and choose the ideal
-            teacher for your child or yourself. Every first class is free.
+            Listen to recitation samples, check qualifications, and find qualified male and
+            female teachers.
           </p>
         </div>
       </section>
@@ -160,132 +156,9 @@ export default async function TutorsDirectory({
           </div>
         ) : (
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {tutors.map((t) => {
-              const languages: string[] = JSON.parse(t.languages || "[]");
-              const hasAudio = !!(t.recitation || t.audioType || t.audioUrl);
-              const firstCourse = t.services[0]?.service;
-              const requestHref = firstCourse
-                ? `/request/${firstCourse.slug}?tutor=${t.id}&teacher=${encodeURIComponent(t.user.name)}`
-                : `/request/quran-recitation?tutor=${t.id}&teacher=${encodeURIComponent(t.user.name)}`;
-
-              return (
-                <div
-                  key={t.id}
-                  className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-brand-300 hover:shadow-md"
-                >
-                  <div>
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full font-bold text-base ${
-                            t.gender === "Female"
-                              ? "bg-rose-100 text-rose-700"
-                              : "bg-brand-100 text-brand-700"
-                          }`}
-                        >
-                          {(t.user.name.charAt(0) || "Q").toUpperCase()}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-1.5">
-                            <h2 className="font-semibold text-slate-900 leading-tight">
-                              {t.user.name}
-                            </h2>
-                            <BadgeCheck size={16} className="text-emerald-600 shrink-0" />
-                          </div>
-                          <p className="text-xs text-slate-500 mt-0.5">
-                            {t.country || "Online"}
-                            {t.timezone ? ` · ${formatZone(t.timezone)}` : ""}
-                          </p>
-                        </div>
-                      </div>
-
-                      {t.gender && (
-                        <span
-                          className={`rounded-full px-2.5 py-0.5 text-xs font-medium shrink-0 ${
-                            t.gender === "Female"
-                              ? "bg-rose-50 text-rose-700 border border-rose-200"
-                              : "bg-slate-100 text-slate-700"
-                          }`}
-                        >
-                          {t.gender === "Female" ? "Sister / Female" : "Male"}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Badges */}
-                    <div className="mt-3 flex flex-wrap gap-1.5 text-xs">
-                      {t.ijazah && (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 font-medium text-amber-800 border border-amber-200">
-                          <Award size={12} /> Certified Ijazah
-                        </span>
-                      )}
-                      {t.hafiz && (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-brand-50 px-2 py-0.5 font-medium text-brand-700 border border-brand-200">
-                          {t.gender === "Female" ? "Hafiza" : "Hafiz"}
-                        </span>
-                      )}
-                      {languages.slice(0, 3).map((lang) => (
-                        <span
-                          key={lang}
-                          className="rounded-md bg-slate-100 px-2 py-0.5 text-slate-600"
-                        >
-                          {lang}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* Bio */}
-                    <p className="mt-3 text-xs sm:text-sm text-slate-600 line-clamp-3 min-h-[2.5rem]">
-                      {t.bio || "Certified Quran & Tajweed teacher dedicated to helping students learn with proper pronunciation, patience, and care."}
-                    </p>
-
-                    {/* Courses */}
-                    {t.services.length > 0 && (
-                      <div className="mt-3 flex flex-wrap gap-1">
-                        {t.services.map((ts) => (
-                          <span
-                            key={ts.id}
-                            className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600"
-                          >
-                            {ts.service.name}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div>
-                    {/* Audio Recitation Player */}
-                    <div className="mt-4">
-                      {hasAudio ? (
-                        <RecitationPlayer
-                          tutorId={t.id}
-                          audioUrl={t.audioUrl || undefined}
-                          tutorName={t.user.name}
-                        />
-                      ) : (
-                        <div className="rounded-xl bg-slate-50 p-2.5 text-center text-xs text-slate-400">
-                          Recitation available on profile
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Call to action */}
-                    <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                      <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
-                        <Sparkles size={13} /> 1st class free
-                      </span>
-                      <Link
-                        href={requestHref}
-                        className="rounded-full bg-brand-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-700 shadow-sm"
-                      >
-                        Book Free Trial
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {tutors.map((t) => (
+              <TeacherCard key={t.id} teacher={t} />
+            ))}
           </div>
         )}
       </main>

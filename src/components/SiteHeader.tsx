@@ -45,12 +45,6 @@ export default async function SiteHeader() {
           ) : (
             <>
               <Link
-                href="/tutors"
-                className="text-xs sm:text-sm font-semibold text-slate-600 hover:text-brand-700"
-              >
-                Browse Teachers
-              </Link>
-              <Link
                 href="/register?role=TUTOR"
                 className="hidden text-sm font-semibold text-slate-600 hover:text-brand-700 sm:inline"
               >

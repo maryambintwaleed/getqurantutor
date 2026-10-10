@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CheckCircle2, Star, BadgeCheck } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
+import TeacherCard from "@/components/TeacherCard";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { acceptQuote } from "@/actions/requests";
@@ -17,17 +18,29 @@ export default async function MyRequestsPage() {
   if (user.role === "TUTOR") redirect("/pro/opportunities");
   if (user.role === "ADMIN") redirect("/admin");
 
-  const requests = await db.request.findMany({
-    where: { parentId: user.id },
-    include: {
-      service: true,
-      quotes: {
-        include: { tutor: { include: { user: true } } },
-        orderBy: { createdAt: "asc" },
+  const [requests, verifiedTutors] = await Promise.all([
+    db.request.findMany({
+      where: { parentId: user.id },
+      include: {
+        service: true,
+        quotes: {
+          include: { tutor: { include: { user: true } } },
+          orderBy: { createdAt: "asc" },
+        },
       },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+      orderBy: { createdAt: "desc" },
+    }),
+    db.tutorProfile.findMany({
+      where: { status: "APPROVED" },
+      include: {
+        user: { select: { name: true } },
+        services: { include: { service: true } },
+        recitation: { select: { tutorId: true } },
+      },
+      orderBy: { ranking: "desc" },
+      take: 4,
+    }),
+  ]);
 
   return (
     <>
@@ -172,6 +185,25 @@ export default async function MyRequestsPage() {
             </div>
           ))}
         </div>
+
+        {/* Verified Teachers preview - visible after placing a request */}
+        {verifiedTutors.length > 0 && (
+          <div className="mt-16 border-t border-slate-200 pt-10">
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">
+                Verified Teachers in Our Community
+              </h2>
+              <p className="mt-1 text-xs text-slate-500">
+                Listen to Tajweed and recitation samples of approved teachers while waiting for quotes.
+              </p>
+            </div>
+            <div className="mt-6 grid gap-5 sm:grid-cols-2">
+              {verifiedTutors.map((t) => (
+                <TeacherCard key={t.id} teacher={t} />
+              ))}
+            </div>
+          </div>
+        )}
       </main>
     </>
   );
