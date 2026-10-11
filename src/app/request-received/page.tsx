@@ -3,6 +3,7 @@ import { CheckCircle2, Headphones } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import TeacherCard from "@/components/TeacherCard";
 import { db } from "@/lib/db";
+import { getCurrentUser } from "@/lib/auth";
 import { getLatestPendingRequestId } from "@/lib/pending";
 
 export default async function RequestReceived({
@@ -10,21 +11,33 @@ export default async function RequestReceived({
 }: {
   searchParams?: Promise<{ gender?: string }>;
 }) {
+  const user = await getCurrentUser();
   const { gender: queryGender } = (await searchParams) || {};
 
   let preferredGender =
     queryGender === "Female" || queryGender === "Male" ? queryGender : "";
 
-  // If gender was not passed in query params, inspect the latest pending request from cookie
+  // If gender was not passed in query params:
   if (!preferredGender) {
-    const pendingId = await getLatestPendingRequestId();
-    if (pendingId) {
-      const pendingReq = await db.request.findUnique({
-        where: { id: pendingId },
+    if (user) {
+      const latestReq = await db.request.findFirst({
+        where: { parentId: user.id },
+        orderBy: { createdAt: "desc" },
         select: { tutorGender: true },
       });
-      if (pendingReq?.tutorGender === "Female" || pendingReq?.tutorGender === "Male") {
-        preferredGender = pendingReq.tutorGender;
+      if (latestReq?.tutorGender === "Female" || latestReq?.tutorGender === "Male") {
+        preferredGender = latestReq.tutorGender;
+      }
+    } else {
+      const pendingId = await getLatestPendingRequestId();
+      if (pendingId) {
+        const pendingReq = await db.request.findUnique({
+          where: { id: pendingId },
+          select: { tutorGender: true },
+        });
+        if (pendingReq?.tutorGender === "Female" || pendingReq?.tutorGender === "Male") {
+          preferredGender = pendingReq.tutorGender;
+        }
       }
     }
   }
@@ -77,17 +90,26 @@ export default async function RequestReceived({
           <CheckCircle2 size={56} className="mx-auto text-emerald-500" />
           <h1 className="mt-5 text-3xl font-bold text-slate-900">Request received!</h1>
           <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
-            Teachers who match your level, timings and gender preference have been notified,
-            and we will email you as soon as quotes arrive — usually within a few hours. Create a
-            free account to compare their quotes side by side.
+            {user
+              ? "Teachers who match your level, timings and gender preference have been notified, and we will email you as soon as quotes arrive — usually within a few hours. You can view your requests and quotes on your dashboard."
+              : "Teachers who match your level, timings and gender preference have been notified, and we will email you as soon as quotes arrive — usually within a few hours. Create a free account to compare their quotes side by side."}
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link
-              href="/register"
-              className="rounded-full bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 shadow-sm"
-            >
-              Create account
-            </Link>
+            {user ? (
+              <Link
+                href="/requests"
+                className="rounded-full bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 shadow-sm"
+              >
+                Go to my requests
+              </Link>
+            ) : (
+              <Link
+                href="/register"
+                className="rounded-full bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 shadow-sm"
+              >
+                Create account
+              </Link>
+            )}
             <Link
               href="/"
               className="rounded-full border border-slate-200 px-6 py-2.5 text-sm font-semibold text-slate-700 hover:border-brand-600"

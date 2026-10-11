@@ -60,9 +60,8 @@ export async function createRequest(input: {
   // Sent after the response, so a slow mail provider never delays the family.
   after(() => notifyMatchingTeachers(created.id));
 
-  const target = user ? "/requests" : "/request-received";
   const query = tutorGender ? `?gender=${encodeURIComponent(tutorGender)}` : "";
-  redirect(`${target}${query}`);
+  redirect(`/request-received${query}`);
 }
 
 export async function acceptQuote(quoteId: string) {

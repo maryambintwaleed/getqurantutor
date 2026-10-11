@@ -2,19 +2,13 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CheckCircle2, Star, BadgeCheck } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
-import TeacherCard from "@/components/TeacherCard";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { acceptQuote } from "@/actions/requests";
 import { timeAgo } from "@/lib/format";
 import { formatZone } from "@/lib/geo";
 
-export default async function MyRequestsPage({
-  searchParams,
-}: {
-  searchParams?: Promise<{ gender?: string }>;
-}) {
-  const { gender: queryGender } = (await searchParams) || {};
+export default async function MyRequestsPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/requests");
   // This is the family view. A teacher who lands here — from a bookmark, or a
@@ -33,32 +27,6 @@ export default async function MyRequestsPage({
       },
     },
     orderBy: { createdAt: "desc" },
-  });
-
-  // Determine requested gender preference:
-  // 1. From URL query (e.g. redirected right after placing request)
-  // 2. From their most recent request with a preference
-  const preferredGender =
-    (queryGender === "Female" || queryGender === "Male" ? queryGender : "") ||
-    requests.find((r) => r.tutorGender === "Female" || r.tutorGender === "Male")?.tutorGender ||
-    "";
-
-  const tutorWhere: any = {
-    status: "APPROVED",
-  };
-  if (preferredGender) {
-    tutorWhere.gender = preferredGender;
-  }
-
-  const verifiedTutors = await db.tutorProfile.findMany({
-    where: tutorWhere,
-    include: {
-      user: { select: { name: true } },
-      services: { include: { service: true } },
-      recitation: { select: { tutorId: true } },
-    },
-    orderBy: { ranking: "desc" },
-    take: 4,
   });
 
   return (
@@ -204,31 +172,6 @@ export default async function MyRequestsPage({
             </div>
           ))}
         </div>
-
-        {/* Verified Teachers preview - visible after placing a request */}
-        {requests.length > 0 && verifiedTutors.length > 0 && (
-          <div className="mt-16 border-t border-slate-200 pt-10">
-            <div>
-              <h2 className="text-xl font-bold text-slate-900">
-                {preferredGender === "Female"
-                  ? "Verified Female Teachers in Our Community"
-                  : preferredGender === "Male"
-                    ? "Verified Male Teachers in Our Community"
-                    : "Verified Teachers in Our Community"}
-              </h2>
-              <p className="mt-1 text-xs text-slate-500">
-                {preferredGender
-                  ? `Listen to Tajweed and recitation samples of approved ${preferredGender.toLowerCase()} teachers matching your request.`
-                  : "Listen to Tajweed and recitation samples of approved teachers while waiting for quotes."}
-              </p>
-            </div>
-            <div className="mt-6 grid gap-5 sm:grid-cols-2">
-              {verifiedTutors.map((t) => (
-                <TeacherCard key={t.id} teacher={t} />
-              ))}
-            </div>
-          </div>
-        )}
       </main>
     </>
   );
