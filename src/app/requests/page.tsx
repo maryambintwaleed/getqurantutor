@@ -9,7 +9,12 @@ import { acceptQuote } from "@/actions/requests";
 import { timeAgo } from "@/lib/format";
 import { formatZone } from "@/lib/geo";
 
-export default async function MyRequestsPage() {
+export default async function MyRequestsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ gender?: string }>;
+}) {
+  const { gender: queryGender } = (await searchParams) || {};
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/requests");
   // This is the family view. A teacher who lands here — from a bookmark, or a
@@ -18,29 +23,43 @@ export default async function MyRequestsPage() {
   if (user.role === "TUTOR") redirect("/pro/opportunities");
   if (user.role === "ADMIN") redirect("/admin");
 
-  const [requests, verifiedTutors] = await Promise.all([
-    db.request.findMany({
-      where: { parentId: user.id },
-      include: {
-        service: true,
-        quotes: {
-          include: { tutor: { include: { user: true } } },
-          orderBy: { createdAt: "asc" },
-        },
+  const requests = await db.request.findMany({
+    where: { parentId: user.id },
+    include: {
+      service: true,
+      quotes: {
+        include: { tutor: { include: { user: true } } },
+        orderBy: { createdAt: "asc" },
       },
-      orderBy: { createdAt: "desc" },
-    }),
-    db.tutorProfile.findMany({
-      where: { status: "APPROVED" },
-      include: {
-        user: { select: { name: true } },
-        services: { include: { service: true } },
-        recitation: { select: { tutorId: true } },
-      },
-      orderBy: { ranking: "desc" },
-      take: 4,
-    }),
-  ]);
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  // Determine requested gender preference:
+  // 1. From URL query (e.g. redirected right after placing request)
+  // 2. From their most recent request with a preference
+  const preferredGender =
+    (queryGender === "Female" || queryGender === "Male" ? queryGender : "") ||
+    requests.find((r) => r.tutorGender === "Female" || r.tutorGender === "Male")?.tutorGender ||
+    "";
+
+  const tutorWhere: any = {
+    status: "APPROVED",
+  };
+  if (preferredGender) {
+    tutorWhere.gender = preferredGender;
+  }
+
+  const verifiedTutors = await db.tutorProfile.findMany({
+    where: tutorWhere,
+    include: {
+      user: { select: { name: true } },
+      services: { include: { service: true } },
+      recitation: { select: { tutorId: true } },
+    },
+    orderBy: { ranking: "desc" },
+    take: 4,
+  });
 
   return (
     <>
@@ -187,14 +206,20 @@ export default async function MyRequestsPage() {
         </div>
 
         {/* Verified Teachers preview - visible after placing a request */}
-        {verifiedTutors.length > 0 && (
+        {requests.length > 0 && verifiedTutors.length > 0 && (
           <div className="mt-16 border-t border-slate-200 pt-10">
             <div>
               <h2 className="text-xl font-bold text-slate-900">
-                Verified Teachers in Our Community
+                {preferredGender === "Female"
+                  ? "Verified Female Teachers in Our Community"
+                  : preferredGender === "Male"
+                    ? "Verified Male Teachers in Our Community"
+                    : "Verified Teachers in Our Community"}
               </h2>
               <p className="mt-1 text-xs text-slate-500">
-                Listen to Tajweed and recitation samples of approved teachers while waiting for quotes.
+                {preferredGender
+                  ? `Listen to Tajweed and recitation samples of approved ${preferredGender.toLowerCase()} teachers matching your request.`
+                  : "Listen to Tajweed and recitation samples of approved teachers while waiting for quotes."}
               </p>
             </div>
             <div className="mt-6 grid gap-5 sm:grid-cols-2">

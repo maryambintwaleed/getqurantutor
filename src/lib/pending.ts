@@ -37,6 +37,12 @@ export async function claimPendingRequests(userId: string) {
   return count;
 }
 
+export async function getLatestPendingRequestId(): Promise<string | null> {
+  const cookieStore = await cookies();
+  const ids = readIds(cookieStore.get(PENDING_COOKIE)?.value);
+  return ids.length > 0 ? ids[ids.length - 1] : null;
+}
+
 function readIds(raw: string | undefined): string[] {
   if (!raw) return [];
   try {
