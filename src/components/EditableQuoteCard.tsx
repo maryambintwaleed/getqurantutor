@@ -3,8 +3,9 @@
 import { useState, useActionState, useEffect } from "react";
 import Link from "next/link";
 import { FileText, Phone, Pencil, X, AlertCircle, CheckCircle2 } from "lucide-react";
+import { editQuote, type EditQuoteState } from "@/actions/tutor";
+import { QUOTE_EDIT_FEE } from "@/lib/services";
 import { timeAgo } from "@/lib/format";
-import { editQuote, QUOTE_EDIT_FEE, type EditQuoteState } from "@/actions/tutor";
 
 const STATUS_STYLES: Record<string, string> = {
   SENT: "bg-brand-50 text-brand-700",

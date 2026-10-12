@@ -5,7 +5,7 @@ import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
-import { ALL_GRADES, ALL_LANGUAGES, QUOTE_FEE } from "@/lib/services";
+import { ALL_GRADES, ALL_LANGUAGES, QUOTE_FEE, QUOTE_EDIT_FEE } from "@/lib/services";
 import { isKnownCountry, isKnownZone } from "@/lib/geo";
 import { notifyFamilyOfQuote } from "@/lib/notify";
 
@@ -149,8 +149,6 @@ export async function topUp(formData: FormData) {
   revalidatePath("/pro/wallet");
   revalidatePath("/pro", "layout");
 }
-
-export const QUOTE_EDIT_FEE = 5;
 
 export type EditQuoteState = { error?: string; success?: boolean };
 

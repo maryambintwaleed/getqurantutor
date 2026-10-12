@@ -350,3 +350,4 @@ export function buildQuestions(slug: string, grades: string[]): WizardQuestion[]
 }
 
 export const QUOTE_FEE = 5; // credits per quote sent
+export const QUOTE_EDIT_FEE = 5; // credits per quote edit
