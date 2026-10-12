@@ -31,6 +31,7 @@ function toDirect(url) {
   return url
     .replace("-pooler.", ".")
     .replace(/([?&])pgbouncer=true(&|$)/, (_m, before, after) => (after === "&" ? before : ""))
+    .replace("sslmode=require", "sslmode=verify-full")
     .replace(/[?&]$/, "");
 }
 
@@ -55,7 +56,12 @@ const run = (command, url) => {
       // Merge stderr into stdout so a failure's reason is visible in the build log.
       process.stdout.write(
         execSync(`${command} 2>&1`, {
-          env: { ...process.env, DATABASE_URL: url },
+          env: {
+            ...process.env,
+            DATABASE_URL: url,
+            NODE_NO_WARNINGS: "1",
+            NODE_OPTIONS: `${process.env.NODE_OPTIONS || ""} --no-warnings`.trim(),
+          },
           encoding: "utf8",
         })
       );
