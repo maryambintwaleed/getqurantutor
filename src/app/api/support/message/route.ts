@@ -2,6 +2,20 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
+const AUTO_REPLY_MESSAGE = `Assalamu Alaikum! 🌙
+
+Thank you for reaching out to GetQuranTutor. We have received your message!
+
+🕒 Live Support Hours (IST):
+
+Monday – Friday: 7:30 PM – 10:30 PM IST
+Saturday – Sunday: 5:30 PM – 9:30 PM IST
+If you are contacting us outside of our live support hours, we normally reply within 24 hours.
+
+Jazakum Allahu Khairan for your patience!`;
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -35,7 +49,7 @@ export async function POST(req: Request) {
       });
     }
 
-    // Save user message directly without automated bot responses
+    // 1. Save user's message
     await db.supportMessage.create({
       data: {
         conversationId: conversation.id,
@@ -45,7 +59,17 @@ export async function POST(req: Request) {
       },
     });
 
-    // Update conversation status and timestamp
+    // 2. Save automated support hours response every time a message is sent
+    await db.supportMessage.create({
+      data: {
+        conversationId: conversation.id,
+        sender: "ADMIN",
+        senderName: "Support Team",
+        content: AUTO_REPLY_MESSAGE,
+      },
+    });
+
+    // 3. Keep conversation marked OPEN with fresh timestamp
     await db.supportConversation.update({
       where: { id: conversation.id },
       data: { updatedAt: new Date(), status: "OPEN" },

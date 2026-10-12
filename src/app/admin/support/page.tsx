@@ -5,14 +5,10 @@ import {
   MessageSquare,
   ShieldCheck,
   User,
-  CheckCircle2,
-  Clock,
   Send,
   RefreshCw,
   Search,
   Filter,
-  Bot,
-  Sparkles,
 } from "lucide-react";
 
 interface SupportMessage {
@@ -35,6 +31,31 @@ interface SupportConversation {
   messages: SupportMessage[];
 }
 
+function formatTime(iso: string) {
+  try {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  } catch {
+    return "";
+  }
+}
+
+function formatDateTime(iso: string) {
+  try {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleString([], {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return "";
+  }
+}
+
 export default function AdminSupportPage() {
   const [conversations, setConversations] = useState<SupportConversation[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -44,7 +65,12 @@ export default function AdminSupportPage() {
   const [replyContent, setReplyContent] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Keep selectedIdRef in sync with current selectedId
   useEffect(() => {
@@ -54,17 +80,17 @@ export default function AdminSupportPage() {
   const fetchConversations = async (silent = false) => {
     try {
       if (!silent) setLoading(true);
-      const res = await fetch("/api/admin/support");
+      const res = await fetch("/api/admin/support", { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
-        const convList: SupportConversation[] = data.conversations || [];
+        const convList: SupportConversation[] = Array.isArray(data.conversations)
+          ? data.conversations
+          : [];
         setConversations(convList);
         setSelectedId((current) => {
-          // If a conversation is already selected and still exists, keep it!
           if (current && convList.some((c) => c.id === current)) {
             return current;
           }
-          // Otherwise, select the first available conversation
           return convList[0]?.id ?? null;
         });
       }
@@ -88,15 +114,19 @@ export default function AdminSupportPage() {
   // Auto-scroll to bottom of message list on conversation change or new message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [selectedId, selectedConversation?.messages.length]);
+  }, [selectedId, selectedConversation?.messages?.length]);
 
+  const q = searchQuery.toLowerCase().trim();
   const filteredConversations = conversations.filter((c) => {
     const matchesStatus = filterStatus === "ALL" || c.status === filterStatus;
-    const matchesSearch =
-      c.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.userEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.messages.some((m) => m.content.toLowerCase().includes(searchQuery.toLowerCase()));
-    return matchesStatus && matchesSearch;
+    if (!matchesStatus) return false;
+    if (!q) return true;
+    const name = (c.userName || "").toLowerCase();
+    const email = (c.userEmail || "").toLowerCase();
+    const msgMatch = (c.messages || []).some((m) =>
+      (m?.content || "").toLowerCase().includes(q)
+    );
+    return name.includes(q) || email.includes(q) || msgMatch;
   });
 
   const handleSendReply = async () => {
@@ -153,7 +183,7 @@ export default function AdminSupportPage() {
             <MessageSquare className="text-emerald-700" size={26} /> Support Chat Inbox
           </h1>
           <p className="text-sm text-slate-500">
-            View user support messages and reply directly.
+            View user support messages and reply directly in real time.
           </p>
         </div>
         <button
@@ -206,7 +236,8 @@ export default function AdminSupportPage() {
               <div className="p-8 text-center text-sm text-slate-400">No support chats found.</div>
             ) : (
               filteredConversations.map((c) => {
-                const lastMsg = c.messages[c.messages.length - 1];
+                const msgList = c.messages || [];
+                const lastMsg = msgList[msgList.length - 1];
                 const isSelected = c.id === selectedId;
 
                 return (
@@ -228,20 +259,22 @@ export default function AdminSupportPage() {
                           {c.userName || "Guest User"}
                         </span>
                         <span className="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600">
-                          {c.userRole}
+                          {c.userRole || "GUEST"}
                         </span>
                       </div>
                       {c.userEmail && (
                         <p className="text-xs text-slate-400 truncate mb-1.5">{c.userEmail}</p>
                       )}
                       <p className="text-xs text-slate-600 line-clamp-1">
-                        {lastMsg ? `${lastMsg.sender === "USER" ? "User: " : lastMsg.sender === "AI" ? "AI: " : "Admin: "}${lastMsg.content}` : "No messages"}
+                        {lastMsg
+                          ? `${lastMsg.sender === "USER" ? "User: " : "Support: "}${(lastMsg.content || "").replaceAll("*", "")}`
+                          : "No messages"}
                       </p>
                     </div>
 
                     <div className="flex flex-col items-end gap-1.5 shrink-0">
                       <span className="text-[10px] text-slate-400">
-                        {new Date(c.updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        {mounted ? formatTime(c.updatedAt) : ""}
                       </span>
                       <span
                         className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
@@ -270,14 +303,14 @@ export default function AdminSupportPage() {
               <div className="p-4 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <h2 className="font-bold text-base text-slate-900 flex items-center gap-2">
-                    {selectedConversation.userName}
+                    {selectedConversation.userName || "Guest User"}
                     <span className="text-xs font-normal text-slate-500">
                       ({selectedConversation.userEmail || "No Email Provided"})
                     </span>
                   </h2>
                   <p className="text-xs text-slate-400">
-                    Role: <strong className="text-slate-600">{selectedConversation.userRole}</strong> • Started:{" "}
-                    {new Date(selectedConversation.createdAt).toLocaleString()}
+                    Role: <strong className="text-slate-600">{selectedConversation.userRole || "GUEST"}</strong> • Started:{" "}
+                    {mounted ? formatDateTime(selectedConversation.createdAt) : ""}
                   </p>
                 </div>
 
@@ -301,19 +334,18 @@ export default function AdminSupportPage() {
 
               {/* Message History */}
               <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/40">
-                {selectedConversation.messages.map((msg) => {
+                {(selectedConversation.messages || []).map((msg) => {
                   const isUser = msg.sender === "USER";
-                  const isAdmin = msg.sender === "ADMIN";
 
                   return (
                     <div
                       key={msg.id}
-                      className={`flex flex-col ${isUser ? "items-start" : isAdmin ? "items-end" : "items-start"}`}
+                      className={`flex flex-col ${isUser ? "items-start" : "items-end"}`}
                     >
                       <div className="flex items-center gap-1.5 mb-1 text-[11px] text-slate-400 font-medium">
                         {isUser ? (
                           <span className="flex items-center gap-1 text-slate-700 font-semibold">
-                            <User size={12} /> {selectedConversation.userName}
+                            <User size={12} /> {selectedConversation.userName || "User"}
                           </span>
                         ) : (
                           <span className="flex items-center gap-1 text-emerald-700 font-semibold">
@@ -321,19 +353,17 @@ export default function AdminSupportPage() {
                           </span>
                         )}
                         <span>•</span>
-                        <span>{new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                        <span>{mounted ? formatTime(msg.createdAt) : ""}</span>
                       </div>
 
                       <div
                         className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                           isUser
                             ? "bg-white border border-slate-200 text-slate-900 shadow-xs"
-                            : isAdmin
-                            ? "bg-emerald-700 text-white shadow-sm"
-                            : "bg-amber-50/90 border border-amber-200 text-amber-950 shadow-xs"
+                            : "bg-emerald-700 text-white shadow-sm"
                         }`}
                       >
-                        <div className="whitespace-pre-wrap">{msg.content.replaceAll("*", "")}</div>
+                        <div className="whitespace-pre-wrap">{(msg.content || "").replaceAll("*", "")}</div>
                       </div>
                     </div>
                   );
@@ -353,7 +383,7 @@ export default function AdminSupportPage() {
                   type="text"
                   value={replyContent}
                   onChange={(e) => setReplyContent(e.target.value)}
-                  placeholder="Type an official admin reply..."
+                  placeholder="Type an official reply..."
                   disabled={sending}
                   className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-emerald-600 focus:outline-none"
                 />
