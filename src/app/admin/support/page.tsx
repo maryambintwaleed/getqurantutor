@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   MessageSquare,
   ShieldCheck,
@@ -38,37 +38,57 @@ interface SupportConversation {
 export default function AdminSupportPage() {
   const [conversations, setConversations] = useState<SupportConversation[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selectedIdRef = useRef<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [replyContent, setReplyContent] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const fetchConversations = async () => {
+  // Keep selectedIdRef in sync with current selectedId
+  useEffect(() => {
+    selectedIdRef.current = selectedId;
+  }, [selectedId]);
+
+  const fetchConversations = async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const res = await fetch("/api/admin/support");
       if (res.ok) {
         const data = await res.json();
-        setConversations(data.conversations || []);
-        if (data.conversations?.length > 0 && !selectedId) {
-          setSelectedId(data.conversations[0].id);
-        }
+        const convList: SupportConversation[] = data.conversations || [];
+        setConversations(convList);
+        setSelectedId((current) => {
+          // If a conversation is already selected and still exists, keep it!
+          if (current && convList.some((c) => c.id === current)) {
+            return current;
+          }
+          // Otherwise, select the first available conversation
+          return convList[0]?.id ?? null;
+        });
       }
     } catch (err) {
       console.error("Failed to load admin support chats:", err);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchConversations();
-    const interval = setInterval(fetchConversations, 12000);
+    fetchConversations(false);
+    const interval = setInterval(() => {
+      fetchConversations(true);
+    }, 10000);
     return () => clearInterval(interval);
   }, []);
 
   const selectedConversation = conversations.find((c) => c.id === selectedId);
+
+  // Auto-scroll to bottom of message list on conversation change or new message
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [selectedId, selectedConversation?.messages.length]);
 
   const filteredConversations = conversations.filter((c) => {
     const matchesStatus = filterStatus === "ALL" || c.status === filterStatus;
@@ -80,7 +100,8 @@ export default function AdminSupportPage() {
   });
 
   const handleSendReply = async () => {
-    if (!selectedId || !replyContent.trim() || sending) return;
+    const activeId = selectedIdRef.current ?? selectedId;
+    if (!activeId || !replyContent.trim() || sending) return;
 
     setSending(true);
     try {
@@ -88,14 +109,14 @@ export default function AdminSupportPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          conversationId: selectedId,
+          conversationId: activeId,
           content: replyContent.trim(),
         }),
       });
 
       if (res.ok) {
         setReplyContent("");
-        await fetchConversations();
+        await fetchConversations(true);
       }
     } catch (err) {
       console.error("Failed to send admin reply:", err);
@@ -105,17 +126,18 @@ export default function AdminSupportPage() {
   };
 
   const handleUpdateStatus = async (status: "OPEN" | "RESOLVED" | "CLOSED") => {
-    if (!selectedId) return;
+    const activeId = selectedIdRef.current ?? selectedId;
+    if (!activeId) return;
 
     try {
       const res = await fetch("/api/admin/support/status", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ conversationId: selectedId, status }),
+        body: JSON.stringify({ conversationId: activeId, status }),
       });
 
       if (res.ok) {
-        await fetchConversations();
+        await fetchConversations(true);
       }
     } catch (err) {
       console.error("Failed to update status:", err);
@@ -135,7 +157,7 @@ export default function AdminSupportPage() {
           </p>
         </div>
         <button
-          onClick={fetchConversations}
+          onClick={() => fetchConversations(false)}
           className="inline-flex items-center gap-2 rounded-xl bg-white border border-slate-200 px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors shadow-xs"
         >
           <RefreshCw size={15} className={loading ? "animate-spin" : ""} /> Refresh
@@ -190,7 +212,10 @@ export default function AdminSupportPage() {
                 return (
                   <button
                     key={c.id}
-                    onClick={() => setSelectedId(c.id)}
+                    onClick={() => {
+                      setSelectedId(c.id);
+                      selectedIdRef.current = c.id;
+                    }}
                     className={`w-full text-left p-4 transition-colors flex items-start justify-between gap-3 ${
                       isSelected
                         ? "bg-emerald-50/70 border-l-4 border-l-emerald-600"
@@ -313,6 +338,7 @@ export default function AdminSupportPage() {
                     </div>
                   );
                 })}
+                <div ref={messagesEndRef} />
               </div>
 
               {/* Admin Reply Box */}
