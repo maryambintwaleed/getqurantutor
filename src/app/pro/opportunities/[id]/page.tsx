@@ -90,12 +90,20 @@ export default async function OpportunityDetail({
         {request.status !== "OPEN" ? (
           <p className="text-center text-slate-500">This opportunity is closed.</p>
         ) : alreadyQuoted ? (
-          <p className="text-center text-slate-500">
-            You already sent a quote for this opportunity.{" "}
-            <Link href="/pro/quotes" className="font-semibold text-brand-600 hover:underline">
-              View my quotes
+          <div className="text-center py-2 space-y-2">
+            <p className="text-slate-700 font-medium text-sm">
+              You already sent a quote for this opportunity.
+            </p>
+            <p className="text-xs text-slate-500">
+              Need to change your price or message? You can edit your quote from My Quotes.
+            </p>
+            <Link
+              href="/pro/quotes"
+              className="inline-block mt-2 rounded-full border border-brand-300 bg-brand-50 px-4 py-1.5 text-xs font-semibold text-brand-700 hover:bg-brand-100 transition"
+            >
+              View & Edit My Quote →
             </Link>
-          </p>
+          </div>
         ) : (
           <>
             <h2 className="text-lg font-bold text-slate-900">Send your quote</h2>

@@ -149,3 +149,66 @@ export async function topUp(formData: FormData) {
   revalidatePath("/pro/wallet");
   revalidatePath("/pro", "layout");
 }
+
+export const QUOTE_EDIT_FEE = 5;
+
+export type EditQuoteState = { error?: string; success?: boolean };
+
+export async function editQuote(_prev: EditQuoteState, formData: FormData): Promise<EditQuoteState> {
+  const profile = await requireTutor();
+  const quoteId = String(formData.get("quoteId") ?? "");
+  const price = Number(formData.get("price"));
+  const message = String(formData.get("message") ?? "").trim();
+  const sharePhone = formData.get("sharePhone") === "on";
+
+  if (!quoteId || !Number.isFinite(price) || price <= 0 || !message) {
+    return { error: "Please enter a valid price and message." };
+  }
+
+  const quote = await db.quote.findUnique({
+    where: { id: quoteId },
+    include: { request: { include: { service: true } } },
+  });
+
+  if (!quote || quote.tutorId !== profile.id) {
+    return { error: "Quote not found or unauthorized." };
+  }
+
+  if (quote.status !== "SENT") {
+    return { error: "You can only edit quotes that are still pending (not won or declined)." };
+  }
+
+  if (quote.request.status !== "OPEN") {
+    return { error: "This student request is no longer open." };
+  }
+
+  const fresh = await db.tutorProfile.findUniqueOrThrow({ where: { id: profile.id } });
+  if (fresh.balance < QUOTE_EDIT_FEE) {
+    return { error: `Editing a quote costs ${QUOTE_EDIT_FEE} credits. Top up your wallet to continue.` };
+  }
+
+  await db.$transaction([
+    db.quote.update({
+      where: { id: quoteId },
+      data: { price, message, sharePhone },
+    }),
+    db.tutorProfile.update({
+      where: { id: profile.id },
+      data: { balance: { decrement: QUOTE_EDIT_FEE } },
+    }),
+    db.walletTransaction.create({
+      data: {
+        tutorId: profile.id,
+        amount: -QUOTE_EDIT_FEE,
+        type: "QUOTE_FEE",
+        note: `Edit Quote: ${quote.request.service.name} — ${quote.request.parentName}`,
+      },
+    }),
+  ]);
+
+  revalidatePath("/pro", "layout");
+  revalidatePath("/pro/quotes");
+  revalidatePath(`/pro/opportunities/${quote.requestId}`);
+  after(() => notifyFamilyOfQuote(quote.id));
+  return { success: true };
+}
