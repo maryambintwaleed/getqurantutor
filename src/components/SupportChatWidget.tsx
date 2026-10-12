@@ -41,7 +41,7 @@ export default function SupportChatWidget() {
           sender: "ADMIN",
           senderName: "Support Team",
           content:
-            "Assalamu Alaikum! 🌙\n\nThank you for reaching out to GetQuranTutor.\n\n🕒 Live Support Hours (IST):\n\nMonday – Friday: 7:30 PM – 10:30 PM IST\nSaturday – Sunday: 5:30 PM – 9:30 PM IST\nIf you are contacting us outside of our live support hours, we normally reply within 24 hours.\n\nPlease leave your message below!",
+            "Assalamu Alaikum! 🌙\n\nThank you for reaching out to GetQuranTutor.\n\n🕒 Live Support Hours (IST):\n\n • Monday – Friday: 7:30 PM – 10:30 PM IST\n • Saturday – Sunday: 5:30 PM – 9:30 PM IST\n\nIf you are contacting us outside of our live support hours, we normally reply within 24 hours.\n\nPlease leave your message below!",
           createdAt: new Date().toISOString(),
         },
       ]);

@@ -10,8 +10,9 @@ Thank you for reaching out to GetQuranTutor. We have received your message!
 
 🕒 Live Support Hours (IST):
 
-Monday – Friday: 7:30 PM – 10:30 PM IST
-Saturday – Sunday: 5:30 PM – 9:30 PM IST
+ • Monday – Friday: 7:30 PM – 10:30 PM IST
+ • Saturday – Sunday: 5:30 PM – 9:30 PM IST
+
 If you are contacting us outside of our live support hours, we normally reply within 24 hours.
 
 Jazakum Allahu Khairan for your patience!`;
