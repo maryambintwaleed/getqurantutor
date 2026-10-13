@@ -10,6 +10,7 @@ import {
   Users,
 } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 import ServiceSearch from "@/components/ServiceSearch";
 import { db } from "@/lib/db";
 
@@ -153,13 +154,7 @@ export default async function Home() {
         </Link>
       </section>
 
-      <footer className="border-t border-slate-100 px-4 py-8 text-center text-sm text-slate-400">
-        © {new Date().getFullYear()} GetQuranTutor · Connecting families with verified Quran
-        teachers ·{" "}
-        <a href="https://getqurantutor.com" className="text-brand-600 hover:underline">
-          getqurantutor.com
-        </a>
-      </footer>
+      <SiteFooter />
     </>
   );
 }

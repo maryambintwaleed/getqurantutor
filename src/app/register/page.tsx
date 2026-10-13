@@ -1,4 +1,5 @@
 import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 import { RegisterForm } from "@/components/AuthForm";
 
 export default async function RegisterPage({
@@ -19,6 +20,7 @@ export default async function RegisterPage({
           <RegisterForm initialRole={role === "TUTOR" ? "TUTOR" : "PARENT"} />
         </div>
       </main>
+      <SiteFooter />
     </>
   );
 }

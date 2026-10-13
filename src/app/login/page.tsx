@@ -1,4 +1,5 @@
 import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 import { LoginForm } from "@/components/AuthForm";
 
 export default async function LoginPage({
@@ -17,6 +18,7 @@ export default async function LoginPage({
           <LoginForm next={next} />
         </div>
       </main>
+      <SiteFooter />
     </>
   );
 }

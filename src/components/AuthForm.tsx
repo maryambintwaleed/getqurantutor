@@ -132,6 +132,17 @@ export function RegisterForm({ initialRole }: { initialRole: "PARENT" | "TUTOR" 
       >
         {pending ? "Creating account…" : "Create account"}
       </button>
+      <p className="text-center text-xs text-slate-500">
+        By creating an account, you agree to our{" "}
+        <Link href="/terms" className="text-brand-600 hover:underline">
+          Terms of Service
+        </Link>{" "}
+        and{" "}
+        <Link href="/privacy" className="text-brand-600 hover:underline">
+          Privacy Policy
+        </Link>
+        .
+      </p>
       <p className="text-center text-sm text-slate-500">
         Already have an account?{" "}
         <Link href="/login" className="font-semibold text-brand-600 hover:underline">
