@@ -127,11 +127,6 @@ export default function TermsPage() {
                   trial lesson. Families and tutors must agree mutually on scheduling and ongoing
                   lesson commitments.
                 </li>
-                <li>
-                  <strong>Punctuality &amp; Respect:</strong> Students and parents agree to treat tutors
-                  with mutual courtesy and provide reasonable notice for session cancellations or
-                  rescheduling.
-                </li>
               </ul>
             </section>
 
