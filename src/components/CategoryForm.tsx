@@ -38,7 +38,7 @@ export default function CategoryForm({ initial }: { initial?: CategoryValues }) 
         name="description"
         defaultValue={initial?.description ?? ""}
         rows={2}
-        placeholder="Short description shown to parents"
+        placeholder="Short description shown to families"
         className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-brand-500"
       />
       <div>

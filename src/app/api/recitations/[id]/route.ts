@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 
 /**
  * Public route that streams an approved teacher's Quran recitation sample
- * so prospective parents and students can listen to their tajweed before booking.
+ * so prospective families and students can listen to their tajweed before booking.
  * Only recitations of teachers with status "APPROVED" are publicly served.
  */
 export async function GET(

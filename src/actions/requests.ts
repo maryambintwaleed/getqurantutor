@@ -40,7 +40,7 @@ export async function createRequest(input: {
   const created = await db.request.create({
     data: {
       parentId: user?.id ?? null,
-      parentName: input.parentName || user?.name || "A parent",
+      parentName: input.parentName || user?.name || "A family",
       serviceId: serviceRec.id,
       answers: JSON.stringify(input.answers),
       grade: input.answers.find((a) => a.question === GRADE_QUESTION_TEXT)?.answer ?? "",

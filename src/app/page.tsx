@@ -61,7 +61,7 @@ export default async function Home() {
             voice-checked before they meet a family
           </span>
           <span className="flex items-center gap-1.5 sm:gap-2">
-            <Video size={16} className="text-brand-600 shrink-0" /> Online 1-to-1, parents welcome to sit in
+            <Video size={16} className="text-brand-600 shrink-0" /> Online 1-to-1, families welcome to sit in
           </span>
         </div>
       </section>
@@ -136,7 +136,7 @@ export default async function Home() {
           “We wanted a female teacher for our daughter in the same time zone. Three quotes came
           the same day — she finished Qaida in four months, alhamdulillah.”
         </p>
-        <p className="mt-2 text-sm font-medium text-slate-500">— Sister Fatima H., Parent</p>
+        <p className="mt-2 text-sm font-medium text-slate-500">— Sister Fatima H., Family</p>
       </section>
 
       {/* Tutor CTA */}

@@ -72,7 +72,7 @@ export default function TermsPage() {
                 </li>
                 <li>
                   <strong>Minors &amp; Children:</strong> For students under 18 years of age, accounts
-                  must be registered and managed by a parent or legal guardian. Parents are
+                  must be registered and managed by a family member or legal guardian. Families are
                   encouraged to attend or monitor online lessons.
                 </li>
                 <li>

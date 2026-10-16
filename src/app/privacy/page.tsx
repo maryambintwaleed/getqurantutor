@@ -142,8 +142,8 @@ export default function PrivacyPage() {
               <p className="mt-2">
                 Protecting the privacy and safety of children is our utmost priority. We do not
                 knowingly collect personal data directly from children under 13 without verifiable
-                parental consent. All student accounts for minors must be set up, supervised, and
-                managed by a parent or legal guardian.
+                family consent. All student accounts for minors must be set up, supervised, and
+                managed by a family member or legal guardian.
               </p>
             </section>
 

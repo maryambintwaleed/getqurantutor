@@ -34,7 +34,7 @@ export default async function WalletPage() {
           </div>
         </div>
         <p className="mt-3 text-sm text-brand-100">
-          Each quote you send costs {QUOTE_FEE} credits. You only pay to reach parents — winning
+          Each quote you send costs {QUOTE_FEE} credits. You only pay to reach families — winning
           the job is free.
         </p>
       </div>
