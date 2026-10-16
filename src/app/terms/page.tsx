@@ -21,9 +21,6 @@ export default function TermsPage() {
             <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
               Terms of Service
             </h1>
-            <p className="mt-3 text-sm text-slate-500">
-              Last updated: October 2026 · Effective immediately
-            </p>
           </header>
 
           <div className="mt-8 space-y-8 text-sm leading-relaxed text-slate-600">
@@ -190,9 +187,8 @@ export default function TermsPage() {
                 9. Changes to Terms
               </h2>
               <p className="mt-2">
-                We may revise these Terms from time to time. When changes are made, we will update the
-                &quot;Last updated&quot; date at the top of this page. Your continued use of the
-                platform after such updates constitutes acceptance of the new Terms.
+                We may revise these Terms from time to time. Your continued use of the
+                platform after such updates constitutes acceptance of the revised Terms.
               </p>
             </section>
 
