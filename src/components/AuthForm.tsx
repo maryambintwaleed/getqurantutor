@@ -70,7 +70,7 @@ export function RegisterForm({ initialRole }: { initialRole: "PARENT" | "TUTOR" 
               role === r ? "bg-white text-brand-700 shadow" : "text-slate-500"
             }`}
           >
-            {r === "PARENT" ? "I'm a family" : "I'm a teacher"}
+            {r === "PARENT" ? "I am a student/guardian" : "I'm a teacher"}
           </button>
         ))}
       </div>
