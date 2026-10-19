@@ -178,6 +178,7 @@ export async function updateTeacherProfile(formData: FormData) {
   const status = String(formData.get("status") ?? "").trim();
   const ijazah = formData.get("ijazah") === "on";
   const hafiz = formData.get("hafiz") === "on";
+  const visible = formData.get("visible") === "on";
 
   if (!tutorId) return;
 
@@ -200,12 +201,33 @@ export async function updateTeacherProfile(formData: FormData) {
         bio,
         ijazah,
         hafiz,
+        visible,
         ...(status ? { status } : {}),
       },
     }),
   ]);
 
   revalidateAdmin();
+  revalidatePath("/request-received");
   revalidatePath("/tutors");
 }
+
+export async function toggleTutorVisibility(formData: FormData) {
+  await requireAdmin();
+  const tutorId = String(formData.get("tutorId") ?? "");
+  if (!tutorId) return;
+
+  const tutor = await db.tutorProfile.findUnique({ where: { id: tutorId } });
+  if (!tutor) return;
+
+  await db.tutorProfile.update({
+    where: { id: tutorId },
+    data: { visible: !tutor.visible },
+  });
+
+  revalidateAdmin();
+  revalidatePath("/request-received");
+  revalidatePath("/tutors");
+}
+
 

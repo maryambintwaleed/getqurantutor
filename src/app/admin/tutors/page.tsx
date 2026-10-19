@@ -1,6 +1,6 @@
-import { Download, Volume2, CheckCircle2, Clock, XCircle, AlertCircle, Edit2 } from "lucide-react";
+import { Download, Volume2, CheckCircle2, Clock, XCircle, AlertCircle, Edit2, Eye, EyeOff } from "lucide-react";
 import { db } from "@/lib/db";
-import { adjustCredits, deleteUser, updateTeacherProfile } from "@/actions/admin";
+import { adjustCredits, deleteUser, updateTeacherProfile, toggleTutorVisibility } from "@/actions/admin";
 import { timeAgo } from "@/lib/format";
 import { formatZone } from "@/lib/geo";
 
@@ -32,7 +32,7 @@ export default async function AdminTutors() {
             <div key={t.id} className="rounded-2xl border border-slate-200 bg-white p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <p className="font-bold text-slate-900">{t.name}</p>
                     {p.status === "APPROVED" && (
                       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 border border-emerald-200">
@@ -52,6 +52,15 @@ export default async function AdminTutors() {
                     {p.status === "PENDING" && (
                       <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
                         Pending
+                      </span>
+                    )}
+                    {p.visible ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700 border border-brand-200">
+                        <Eye size={12} /> Visible
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500 border border-slate-200">
+                        <EyeOff size={12} /> Hidden
                       </span>
                     )}
                   </div>
@@ -206,7 +215,7 @@ export default async function AdminTutors() {
                         <option value="REJECTED">REJECTED</option>
                       </select>
                     </div>
-                    <div className="flex items-center gap-4 pt-4">
+                    <div className="flex flex-wrap items-center gap-4 pt-4">
                       <label className="flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer">
                         <input type="checkbox" name="ijazah" defaultChecked={p.ijazah} className="rounded accent-brand-600" />
                         Ijazah
@@ -214,6 +223,10 @@ export default async function AdminTutors() {
                       <label className="flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer">
                         <input type="checkbox" name="hafiz" defaultChecked={p.hafiz} className="rounded accent-brand-600" />
                         Hafiz/Hafiza
+                      </label>
+                      <label className="flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer">
+                        <input type="checkbox" name="visible" defaultChecked={p.visible} className="rounded accent-brand-600" />
+                        Visible on Showcase
                       </label>
                     </div>
                   </div>
@@ -251,6 +264,29 @@ export default async function AdminTutors() {
                     Adjust credits
                   </button>
                 </form>
+
+                <form action={toggleTutorVisibility}>
+                  <input type="hidden" name="tutorId" value={p.id} />
+                  <button
+                    type="submit"
+                    className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-semibold transition ${
+                      p.visible
+                        ? "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                        : "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                    }`}
+                  >
+                    {p.visible ? (
+                      <>
+                        <EyeOff size={14} /> Hide teacher
+                      </>
+                    ) : (
+                      <>
+                        <Eye size={14} /> Make visible
+                      </>
+                    )}
+                  </button>
+                </form>
+
                 <form action={deleteUser} className="ml-auto">
                   <input type="hidden" name="userId" value={t.id} />
                   <button className="rounded-lg border border-red-200 px-3 py-1.5 text-sm font-semibold text-red-600 hover:bg-red-50">

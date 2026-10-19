@@ -41,6 +41,7 @@ model TutorProfile {
   timezone  String  @default("")
   ijazah    Boolean @default(false) // holds a certified ijazah / sanad
   hafiz     Boolean @default(false) // has memorised the full Quran
+  visible   Boolean @default(true) // whether this teacher appears on showcase cards
 
   // Verification. A teacher sees no family requests until an admin approves
   // them: PENDING (nothing sent) -> SUBMITTED -> APPROVED | REJECTED.

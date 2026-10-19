@@ -48,6 +48,7 @@ export default async function RequestReceived({
   // - No preference -> both female and male teachers
   const tutorWhere: any = {
     status: "APPROVED",
+    visible: true,
   };
   if (preferredGender) {
     tutorWhere.gender = preferredGender;
