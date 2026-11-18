@@ -145,33 +145,52 @@ export default async function AdminOverview() {
       {/* Latest Requests */}
       <h2 className="mt-10 text-lg font-bold text-slate-900">Latest requests</h2>
       <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200 bg-white">
-        {recent.map((r, i) => (
-          <div
-            key={r.id}
-            className={`flex items-center justify-between gap-3 px-5 py-4 ${
-              i > 0 ? "border-t border-slate-100" : ""
-            }`}
-          >
-            <div className="min-w-0">
-              <p className="truncate font-medium text-slate-900">
-                {r.service.name} — {r.parentName}
-              </p>
-              <p className="text-xs text-slate-500">
-                {r.grade || "No level"} · {r.tutorGender || "Any"} teacher · {r.quotes.length} quote
-                {r.quotes.length === 1 ? "" : "s"}
-              </p>
-            </div>
-            <span
-              className={`rounded-lg px-2.5 py-1 text-xs font-semibold ${
-                r.status === "OPEN"
-                  ? "bg-brand-50 text-brand-700"
-                  : "bg-green-50 text-green-700"
+        {recent.map((r, i) => {
+          const reqMode = r.mode === "Offline" ? "Offline" : "Online";
+          return (
+            <div
+              key={r.id}
+              className={`flex items-center justify-between gap-3 px-5 py-4 ${
+                i > 0 ? "border-t border-slate-100" : ""
               }`}
             >
-              {r.status}
-            </span>
-          </div>
-        ))}
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="truncate font-medium text-slate-900">
+                    {r.service.name} — {r.parentName}
+                  </p>
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                      reqMode === "Offline"
+                        ? "bg-amber-50 text-amber-800 border border-amber-200"
+                        : "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                    }`}
+                  >
+                    <span
+                      className={`h-1.5 w-1.5 rounded-full ${
+                        reqMode === "Offline" ? "bg-amber-500" : "bg-emerald-500"
+                      }`}
+                    />
+                    {reqMode}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500">
+                  {r.grade || "No level"} · {r.tutorGender || "Any"} teacher · {r.quotes.length} quote
+                  {r.quotes.length === 1 ? "" : "s"}
+                </p>
+              </div>
+              <span
+                className={`rounded-lg px-2.5 py-1 text-xs font-semibold ${
+                  r.status === "OPEN"
+                    ? "bg-brand-50 text-brand-700"
+                    : "bg-green-50 text-green-700"
+                }`}
+              >
+                {r.status}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </>
   );
