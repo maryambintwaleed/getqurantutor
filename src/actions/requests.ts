@@ -7,7 +7,7 @@ import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { notifyMatchingTeachers, notifyTeacherOfWin } from "@/lib/notify";
 import { isKnownCountry } from "@/lib/geo";
-import { GRADE_QUESTION_TEXT, TUTOR_GENDER_QUESTION } from "@/lib/services";
+import { GRADE_QUESTION_TEXT, TUTOR_GENDER_QUESTION, SCHOOL_HIRING_SLUG, getService } from "@/lib/services";
 
 export async function createRequest(input: {
   slug: string;
@@ -17,6 +17,7 @@ export async function createRequest(input: {
   email: string;
   city: string;
   mode?: string;
+  isSchool?: boolean;
   urgent: boolean;
 }) {
   const user = await getCurrentUser();
@@ -24,10 +25,29 @@ export async function createRequest(input: {
     redirect(`/register?next=${encodeURIComponent(`/request/${input.slug}`)}`);
   }
 
-  const serviceRec = await db.service.findUnique({ where: { slug: input.slug } });
+  let serviceRec = await db.service.findUnique({ where: { slug: input.slug } });
+  if (!serviceRec && input.slug === SCHOOL_HIRING_SLUG) {
+    const def = getService(SCHOOL_HIRING_SLUG)!;
+    serviceRec = await db.service.create({
+      data: {
+        slug: def.slug,
+        name: def.name,
+        description: def.description,
+        emoji: def.emoji,
+        priceMin: def.priceMin,
+        priceMax: def.priceMax,
+        grades: JSON.stringify(def.grades),
+      },
+    });
+  }
   if (!serviceRec || !serviceRec.active) throw new Error("Service not found");
 
   const mode = input.mode === "Offline" ? "Offline" : "Online";
+  const isSchool = Boolean(
+    input.isSchool ||
+      input.slug === SCHOOL_HIRING_SLUG ||
+      input.answers.some((a) => a.answer.toLowerCase().includes("school"))
+  );
   const genderAnswer =
     input.answers.find((a) => a.question === TUTOR_GENDER_QUESTION)?.answer ?? "";
   const tutorGender = genderAnswer.startsWith("Female")
@@ -42,7 +62,7 @@ export async function createRequest(input: {
   const created = await db.request.create({
     data: {
       parentId: user.id,
-      parentName: input.parentName || user.name || "A family",
+      parentName: input.parentName || user.name || (isSchool ? "A school" : "A family"),
       serviceId: serviceRec.id,
       answers: JSON.stringify(input.answers),
       grade: input.answers.find((a) => a.question === GRADE_QUESTION_TEXT)?.answer ?? "",
@@ -54,6 +74,7 @@ export async function createRequest(input: {
       // stored, so locations stay comparable.
       city: isKnownCountry(input.city) ? input.city : "",
       urgent,
+      isSchool,
     },
   });
 

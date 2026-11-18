@@ -39,6 +39,11 @@ export default async function OpportunityDetail({
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-lg font-bold text-slate-900">{request.parentName}</span>
+              {request.isSchool && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-100 px-2.5 py-0.5 text-xs font-semibold text-indigo-800">
+                  🏫 School Hiring
+                </span>
+              )}
               <span
                 className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                   request.mode === "Offline"
@@ -119,7 +124,9 @@ export default async function OpportunityDetail({
           </div>
         ) : (
           <>
-            <h2 className="text-lg font-bold text-slate-900">Send your quote</h2>
+            <h2 className="text-lg font-bold text-slate-900">
+              {request.isSchool ? "Apply / Send your proposal to this school" : "Send your quote"}
+            </h2>
             <p className="mt-1 text-sm text-slate-500">
               Sending a quote costs <b>{QUOTE_FEE} credits</b>. Your balance:{" "}
               <b>{profile.balance} credits</b>. You keep 100% of your class fees.

@@ -14,6 +14,7 @@ export async function register(_prev: AuthState, formData: FormData): Promise<Au
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
   const role = formData.get("role") === "TUTOR" ? "TUTOR" : "PARENT";
+  const accountType = String(formData.get("accountType") ?? "");
   const gender = formData.get("gender") === "Female" ? "Female" : "Male";
   const next = String(formData.get("next") ?? "");
 
@@ -42,6 +43,9 @@ export async function register(_prev: AuthState, formData: FormData): Promise<Au
     const claimed = await claimPendingRequests(user.id);
     if (next && next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/pro") && !next.startsWith("/admin")) {
       redirect(next);
+    }
+    if (accountType === "SCHOOL") {
+      redirect("/request/school-hiring");
     }
     if (claimed > 0) redirect("/requests"); // straight to the quotes they signed up for
   }

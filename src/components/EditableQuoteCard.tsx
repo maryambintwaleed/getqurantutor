@@ -31,6 +31,7 @@ export interface QuoteItem {
     parentName: string;
     city: string | null;
     mode: string;
+    isSchool?: boolean;
     service: {
       name: string;
     };
@@ -72,6 +73,11 @@ export default function EditableQuoteCard({
             <span className="font-bold text-slate-900 text-base">
               {quote.request.parentName}
             </span>
+            {quote.request.isSchool && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-100 px-2 py-0.5 text-[11px] font-semibold text-indigo-800">
+                🏫 School Hiring
+              </span>
+            )}
             <span
               className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
                 quote.request.mode === "Offline"

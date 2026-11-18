@@ -3,7 +3,7 @@ import { connection } from "next/server";
 import Wizard from "@/components/Wizard";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
-import { buildQuestions } from "@/lib/services";
+import { buildQuestions, getService, SCHOOL_HIRING_SLUG } from "@/lib/services";
 
 export default async function RequestPage({
   params,
@@ -19,10 +19,25 @@ export default async function RequestPage({
   const user = await getCurrentUser();
   if (!user) {
     const nextPath = `/request/${slug}${teacher ? `?teacher=${encodeURIComponent(teacher)}` : ""}`;
-    redirect(`/register?next=${encodeURIComponent(nextPath)}`);
+    const roleParam = slug === SCHOOL_HIRING_SLUG ? "&role=SCHOOL" : "";
+    redirect(`/register?next=${encodeURIComponent(nextPath)}${roleParam}`);
   }
 
-  const service = await db.service.findUnique({ where: { slug } });
+  let service = await db.service.findUnique({ where: { slug } });
+  if (!service && slug === SCHOOL_HIRING_SLUG) {
+    const def = getService(SCHOOL_HIRING_SLUG)!;
+    service = await db.service.create({
+      data: {
+        slug: def.slug,
+        name: def.name,
+        description: def.description,
+        emoji: def.emoji,
+        priceMin: def.priceMin,
+        priceMax: def.priceMax,
+        grades: JSON.stringify(def.grades),
+      },
+    });
+  }
   if (!service || !service.active) notFound();
 
   const grades: string[] = JSON.parse(service.grades);

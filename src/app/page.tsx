@@ -89,6 +89,29 @@ export default async function Home() {
             </Link>
           ))}
         </div>
+
+        {/* For Schools & Academies Banner */}
+        <div className="mt-8 rounded-2xl border border-indigo-200 bg-gradient-to-r from-indigo-50 via-white to-brand-50 p-6 sm:p-8 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            <div className="max-w-2xl">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-800">
+                🏫 For Schools, Madrasahs &amp; Academies
+              </span>
+              <h3 className="mt-2.5 text-xl sm:text-2xl font-bold text-slate-900">
+                Looking for qualified Quran, Arabic or Islamic Studies teachers for your school?
+              </h3>
+              <p className="mt-1.5 text-sm text-slate-600">
+                Post your school&apos;s teacher requirements for free and invite voice-verified male and female teachers to apply directly to your institution.
+              </p>
+            </div>
+            <Link
+              href="/request/school-hiring"
+              className="shrink-0 inline-flex items-center justify-center rounded-full bg-indigo-600 px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+            >
+              Invite teachers to apply →
+            </Link>
+          </div>
+        </div>
       </section>
 
       {/* How it works */}

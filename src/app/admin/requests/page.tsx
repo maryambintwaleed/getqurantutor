@@ -24,6 +24,11 @@ export default async function AdminRequests() {
                     <p className="font-bold text-slate-900">
                       {r.service.name} — {r.parentName}
                     </p>
+                    {r.isSchool && (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-100 px-2.5 py-0.5 text-xs font-semibold text-indigo-800">
+                        🏫 School Hiring
+                      </span>
+                    )}
                     <span
                       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                         reqMode === "Offline"

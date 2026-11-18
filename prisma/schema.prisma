@@ -99,6 +99,7 @@ model Request {
   mode       String   @default("Online") // Online | In person
   city       String   @default("")
   urgent     Boolean  @default(false)
+  isSchool   Boolean  @default(false) // true when a school/academy is hiring tutors to apply
   status     String   @default("OPEN") // OPEN | CLOSED
   createdAt  DateTime @default(now())
 

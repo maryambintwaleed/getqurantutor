@@ -42,6 +42,7 @@ export default function Wizard({
   const [email, setEmail] = useState(initialUser?.email ?? "");
   const [country, setCountry] = useState("");
   const [mode, setMode] = useState<"Online" | "Offline">("Online");
+  const [isSchool, setIsSchool] = useState(service.slug === "school-hiring");
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState("");
 
@@ -53,6 +54,9 @@ export default function Wizard({
     const next = [...answers];
     next[step] = option;
     setAnswers(next);
+    if (option.toLowerCase().includes("school")) {
+      setIsSchool(true);
+    }
     setStep(step + 1);
     setMultiSelection([]);
   }
@@ -85,7 +89,7 @@ export default function Wizard({
 
   function submit() {
     if (!parentName.trim()) {
-      setError("Please tell us your name.");
+      setError(isSchool ? "Please enter your school or academy name." : "Please tell us your name.");
       return;
     }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) {
@@ -105,6 +109,7 @@ export default function Wizard({
         email: email.trim(),
         city: country, // the location column now holds a country picked from the list
         mode,
+        isSchool,
         urgent: false,
       });
     });
@@ -199,12 +204,44 @@ export default function Wizard({
             </>
           ) : (
             <>
-              <h2 className="text-xl font-bold text-slate-900">Almost done!</h2>
+              <h2 className="text-xl font-bold text-slate-900">
+                {isSchool ? "School / Academy Details" : "Almost done!"}
+              </h2>
               <p className="mt-1 text-sm text-slate-500">
-                Add a few details so teachers can send you an accurate quote. We will email
-                you as soon as a teacher replies.
+                {isSchool
+                  ? "Add details about your school and opening so verified teachers can apply with their proposals."
+                  : "Add a few details so teachers can send you an accurate quote. We will email you as soon as a teacher replies."}
               </p>
               <div className="mt-5 space-y-4">
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-600">
+                    Requesting As
+                  </label>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => setIsSchool(false)}
+                      className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-xs sm:text-sm font-semibold transition ${
+                        !isSchool
+                          ? "border-brand-500 bg-brand-50 text-brand-800 shadow-xs"
+                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                      }`}
+                    >
+                      👤 Student / Family
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsSchool(true)}
+                      className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-xs sm:text-sm font-semibold transition ${
+                        isSchool
+                          ? "border-indigo-500 bg-indigo-50 text-indigo-800 shadow-xs"
+                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                      }`}
+                    >
+                      🏫 School / Academy
+                    </button>
+                  </div>
+                </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-600">
                     Class Format (Online / Offline)
@@ -240,7 +277,11 @@ export default function Wizard({
                   value={details}
                   onChange={(e) => setDetails(e.target.value)}
                   rows={4}
-                  placeholder="Anything else the teacher should know? (age, past experience, specific surahs, timings…)"
+                  placeholder={
+                    isSchool
+                      ? "Tell teachers about your school, required qualifications (Ijazah, Hifdh), schedule, class size, and salary/hourly rate…"
+                      : "Anything else the teacher should know? (age, past experience, specific surahs, timings…)"
+                  }
                   className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-brand-500"
                 />
                 <input
@@ -248,19 +289,19 @@ export default function Wizard({
                   onChange={(e) => setEmail(e.target.value)}
                   type="email"
                   autoComplete="email"
-                  placeholder="Your email *"
+                  placeholder={isSchool ? "School contact email *" : "Your email *"}
                   className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-brand-500"
                 />
                 <div className="grid grid-cols-2 gap-3">
                   <input
                     value={parentName}
                     onChange={(e) => setParentName(e.target.value)}
-                    placeholder="Your name *"
+                    placeholder={isSchool ? "School / Academy name *" : "Your name *"}
                     className="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-brand-500"
                   />
                   <SearchableSelect
                     ariaLabel="Your country"
-                    placeholder="Your country (optional)"
+                    placeholder="Country (optional)"
                     value={country}
                     onChange={setCountry}
                     options={countryOptions}
@@ -297,7 +338,11 @@ export default function Wizard({
               disabled={pending}
               className="w-full rounded-xl bg-accent-500 py-3.5 font-semibold text-white transition hover:bg-accent-600 disabled:opacity-60"
             >
-              {pending ? "Sending…" : "Get quotes from teachers"}
+              {pending
+                ? "Sending…"
+                : isSchool
+                  ? "Invite teachers to apply"
+                  : "Get quotes from teachers"}
             </button>
           ) : (
             <p className="text-center text-xs text-slate-400">

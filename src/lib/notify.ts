@@ -15,7 +15,9 @@ export async function notifyMatchingTeachers(requestId: string) {
   if (!request || request.status !== "OPEN") return;
 
   const candidates = await db.tutorProfile.findMany({
-    where: { services: { some: { serviceId: request.serviceId } } },
+    where: request.isSchool
+      ? { status: "APPROVED" }
+      : { services: { some: { serviceId: request.serviceId } } },
     include: { user: true },
   });
 
@@ -31,14 +33,20 @@ export async function notifyMatchingTeachers(requestId: string) {
     matches.map((tutor) =>
       sendEmail({
         to: tutor.user.email,
-        subject: `New ${request.service.name} student${request.city ? ` in ${request.city}` : ""}`,
-        heading: "A family is looking for a teacher",
+        subject: request.isSchool
+          ? `🏫 School hiring: ${request.parentName} is looking for teachers`
+          : `New ${request.service.name} student${request.city ? ` in ${request.city}` : ""}`,
+        heading: request.isSchool
+          ? `${escape(request.parentName)} invited teachers to apply`
+          : "A family is looking for a teacher",
         body: [
           `<b>${escape(request.service.name)}</b>${where ? ` — ${escape(where)}` : ""}`,
           request.details ? `“${escape(request.details.slice(0, 240))}”` : "",
-          "Families usually choose from the first few replies, so it is worth answering today.",
+          request.isSchool
+            ? "Send your proposal and rate early to be considered by the school."
+            : "Families usually choose from the first few replies, so it is worth answering today.",
         ].filter(Boolean),
-        cta: { label: "See the request", href: `${siteUrl()}/pro/opportunities/${request.id}` },
+        cta: { label: request.isSchool ? "Apply now" : "See the request", href: `${siteUrl()}/pro/opportunities/${request.id}` },
       })
     )
   );

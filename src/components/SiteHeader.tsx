@@ -28,12 +28,20 @@ export default async function SiteHeader() {
                   Teacher dashboard
                 </Link>
               ) : (
-                <Link
-                  href="/requests"
-                  className="rounded-full bg-brand-600 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-white hover:bg-brand-700"
-                >
-                  My requests
-                </Link>
+                <>
+                  <Link
+                    href="/request/school-hiring"
+                    className="hidden text-sm font-semibold text-slate-600 hover:text-brand-700 sm:inline"
+                  >
+                    🏫 For Schools
+                  </Link>
+                  <Link
+                    href="/requests"
+                    className="rounded-full bg-brand-600 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-white hover:bg-brand-700"
+                  >
+                    My requests
+                  </Link>
+                </>
               )}
               <span className="hidden text-sm text-slate-500 sm:inline">{user.name}</span>
               <form action={logout}>
@@ -44,6 +52,12 @@ export default async function SiteHeader() {
             </>
           ) : (
             <>
+              <Link
+                href="/request/school-hiring"
+                className="hidden text-sm font-semibold text-slate-600 hover:text-brand-700 sm:inline"
+              >
+                🏫 For Schools
+              </Link>
               <Link
                 href="/register?role=TUTOR"
                 className="hidden text-sm font-semibold text-slate-600 hover:text-brand-700 sm:inline"

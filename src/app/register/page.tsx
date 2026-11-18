@@ -9,6 +9,12 @@ export default async function RegisterPage({
 }) {
   const { role, next } = await searchParams;
   const isFromRequest = next?.startsWith("/request");
+  const initialRole =
+    role === "TUTOR"
+      ? "TUTOR"
+      : role === "SCHOOL" || next?.includes("school-hiring")
+        ? "SCHOOL"
+        : "PARENT";
   return (
     <>
       <SiteHeader />
@@ -21,9 +27,9 @@ export default async function RegisterPage({
           )}
           <h1 className="text-2xl font-bold text-slate-900">Create your account</h1>
           <p className="mb-6 mt-1 text-sm text-slate-500">
-            Families get quotes for free. Teachers get new students.
+            Students, families &amp; schools get quotes for free. Teachers get new students.
           </p>
-          <RegisterForm initialRole={role === "TUTOR" ? "TUTOR" : "PARENT"} next={next} />
+          <RegisterForm initialRole={initialRole} next={next} />
         </div>
       </main>
       <SiteFooter />

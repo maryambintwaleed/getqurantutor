@@ -159,6 +159,11 @@ export default async function AdminOverview() {
                   <p className="truncate font-medium text-slate-900">
                     {r.service.name} — {r.parentName}
                   </p>
+                  {r.isSchool && (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-100 px-2 py-0.5 text-[11px] font-semibold text-indigo-800">
+                      🏫 School Hiring
+                    </span>
+                  )}
                   <span
                     className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
                       reqMode === "Offline"

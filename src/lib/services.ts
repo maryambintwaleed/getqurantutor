@@ -74,6 +74,7 @@ const STUDENT_QUESTION: WizardQuestion = {
     "My teenager (13–17)",
     "Myself (adult)",
     "More than one child",
+    "My school / academy (hiring teachers)",
   ],
 };
 
@@ -320,7 +321,65 @@ export const SERVICES: ServiceDef[] = [
       START_QUESTION,
     ],
   },
+  {
+    slug: "school-hiring",
+    name: "School & Academy Teacher Hiring",
+    short: "Invite verified teachers to apply to your school",
+    description:
+      "Recruiting Quran, Tajweed, Hifdh, Arabic or Islamic Studies teachers for your school, madrasah or academy? Post your opening and let verified teachers apply.",
+    emoji: "🏫",
+    priceMin: 10,
+    priceMax: 35,
+    grades: ALL_GRADES,
+    questions: [
+      {
+        question: "Which subjects is your school hiring teachers for?",
+        multi: true,
+        options: [
+          "Noorani Qaida (Beginners)",
+          "Quran Recitation (Nazra)",
+          "Hifdh (Memorisation)",
+          "Tajweed Rules",
+          "Arabic Language",
+          "Islamic Studies",
+        ],
+      },
+      {
+        question: "How many teachers are you looking to hire?",
+        options: [
+          "1 teacher",
+          "2–3 teachers",
+          "4–10 teachers",
+          "10+ teachers (ongoing recruitment)",
+        ],
+      },
+      GENDER_QUESTION,
+      {
+        question: "What type of position are you offering?",
+        options: [
+          "Part-time (fixed weekly hours)",
+          "Full-time",
+          "Hourly / per-class basis",
+          "Flexible / open to discussion",
+        ],
+      },
+      {
+        question: "Which student age groups will the teacher(s) teach?",
+        multi: true,
+        options: [
+          "Early years (4–7 years)",
+          "Primary / Elementary (8–12 years)",
+          "Secondary / Teens (13–17 years)",
+          "Adults",
+        ],
+      },
+      TIME_QUESTION,
+      START_QUESTION,
+    ],
+  },
 ];
+
+export const SCHOOL_HIRING_SLUG = "school-hiring";
 
 export function getService(slug: string) {
   return SERVICES.find((s) => s.slug === slug);
@@ -343,7 +402,7 @@ export function buildQuestions(slug: string, grades: string[]): WizardQuestion[]
         TIME_QUESTION,
         START_QUESTION,
       ];
-  if (grades.length > 0) {
+  if (grades.length > 0 && slug !== SCHOOL_HIRING_SLUG) {
     base.splice(1, 0, { question: GRADE_QUESTION_TEXT, options: grades });
   }
   return base;

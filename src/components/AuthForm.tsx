@@ -60,41 +60,52 @@ export function RegisterForm({
   initialRole,
   next,
 }: {
-  initialRole: "PARENT" | "TUTOR";
+  initialRole: "PARENT" | "SCHOOL" | "TUTOR";
   next?: string;
 }) {
   const [state, action, pending] = useActionState<AuthState, FormData>(register, {});
-  const [role, setRole] = useState<"PARENT" | "TUTOR">(initialRole);
+  const [uiRole, setUiRole] = useState<"PARENT" | "SCHOOL" | "TUTOR">(initialRole);
+  const dbRole = uiRole === "TUTOR" ? "TUTOR" : "PARENT";
 
   return (
     <form action={action} className="space-y-4">
-      <input type="hidden" name="role" value={role} />
+      <input type="hidden" name="role" value={dbRole} />
+      <input type="hidden" name="accountType" value={uiRole} />
       {next && <input type="hidden" name="next" value={next} />}
-      <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1">
-        {(["PARENT", "TUTOR"] as const).map((r) => (
+      <div className="grid grid-cols-3 gap-1.5 rounded-xl bg-slate-100 p-1">
+        {(["PARENT", "SCHOOL", "TUTOR"] as const).map((r) => (
           <button
             key={r}
             type="button"
-            onClick={() => setRole(r)}
-            className={`rounded-lg py-2.5 text-sm font-semibold transition ${
-              role === r ? "bg-white text-brand-700 shadow" : "text-slate-500"
+            onClick={() => setUiRole(r)}
+            className={`rounded-lg px-2 py-2.5 text-xs sm:text-sm font-semibold transition ${
+              uiRole === r ? "bg-white text-brand-700 shadow" : "text-slate-500"
             }`}
           >
-            {r === "PARENT" ? "I am a student/guardian" : "I'm a teacher"}
+            {r === "PARENT"
+              ? "I am a student/guardian"
+              : r === "SCHOOL"
+                ? "I am a school"
+                : "I'm a teacher"}
           </button>
         ))}
       </div>
+      {uiRole === "SCHOOL" && (
+        <p className="rounded-xl bg-brand-50 border border-brand-100 px-4 py-3 text-xs sm:text-sm text-brand-800">
+          🏫 <b>Hiring for a school or academy?</b> Post your requirements for free and let verified teachers apply directly to you.
+        </p>
+      )}
       <input
         name="name"
         required
-        placeholder="Full name"
+        placeholder={uiRole === "SCHOOL" ? "School or Academy name" : "Full name"}
         className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-brand-500"
       />
       <input
         name="email"
         type="email"
         required
-        placeholder="Email"
+        placeholder={uiRole === "SCHOOL" ? "School contact email" : "Email"}
         className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-brand-500"
       />
       <input
@@ -105,7 +116,7 @@ export function RegisterForm({
         placeholder="Password (min 6 characters)"
         className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-brand-500"
       />
-      {role === "TUTOR" && (
+      {uiRole === "TUTOR" && (
         <>
           <div>
             <p className="mb-2 text-sm font-medium text-slate-700">I am a</p>

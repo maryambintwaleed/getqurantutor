@@ -23,9 +23,14 @@ export default async function OpportunitiesPage({
   const requests = await db.request.findMany({
     where: {
       status: "OPEN",
-      serviceId: { in: serviceIds },
       quotes: { none: { tutorId: profile.id } },
       AND: [
+        {
+          OR: [
+            { serviceId: { in: serviceIds } },
+            { isSchool: true },
+          ],
+        },
         gradeWhere(profile.grades),
         genderWhere(profile.gender),
         q
@@ -48,7 +53,7 @@ export default async function OpportunitiesPage({
     <>
       <h1 className="text-3xl font-bold text-slate-900">Opportunities</h1>
       <p className="mt-2 text-sm text-slate-500">
-        Requests matching your courses, the levels you accept and your gender.
+        Student, family &amp; school requests matching your courses, levels and gender.
       </p>
 
       <form className="mt-6 flex flex-wrap items-center gap-3">
@@ -100,11 +105,20 @@ export default async function OpportunitiesPage({
             <Link
               key={r.id}
               href={`/pro/opportunities/${r.id}`}
-              className="block rounded-2xl border border-slate-200 bg-white p-6 transition hover:border-brand-300 hover:shadow-md"
+              className={`block rounded-2xl border p-6 transition hover:shadow-md ${
+                r.isSchool
+                  ? "border-indigo-200 bg-indigo-50/20 hover:border-indigo-400"
+                  : "border-slate-200 bg-white hover:border-brand-300"
+              }`}
             >
               <div className="flex items-start justify-between">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-semibold text-slate-900">{r.parentName}</span>
+                  {r.isSchool && (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-100 px-2.5 py-0.5 text-xs font-semibold text-indigo-800">
+                      🏫 School Hiring
+                    </span>
+                  )}
                   <span
                     className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                       r.mode === "Offline"
