@@ -22,6 +22,7 @@ export async function sendQuote(_prev: QuoteState, formData: FormData): Promise<
   const requestId = String(formData.get("requestId") ?? "");
   const price = Number(formData.get("price"));
   const message = String(formData.get("message") ?? "").trim();
+  const mode = formData.get("mode") === "Offline" ? "Offline" : "Online";
   const sharePhone = formData.get("sharePhone") === "on";
 
   if (!requestId || !Number.isFinite(price) || price <= 0 || !message) {
@@ -50,7 +51,7 @@ export async function sendQuote(_prev: QuoteState, formData: FormData): Promise<
 
   const [quote] = await db.$transaction([
     db.quote.create({
-      data: { requestId, tutorId: profile.id, price, message, sharePhone },
+      data: { requestId, tutorId: profile.id, price, message, mode, sharePhone },
     }),
     db.tutorProfile.update({
       where: { id: profile.id },
@@ -157,6 +158,7 @@ export async function editQuote(_prev: EditQuoteState, formData: FormData): Prom
   const quoteId = String(formData.get("quoteId") ?? "");
   const price = Number(formData.get("price"));
   const message = String(formData.get("message") ?? "").trim();
+  const mode = formData.get("mode") === "Offline" ? "Offline" : "Online";
   const sharePhone = formData.get("sharePhone") === "on";
 
   if (!quoteId || !Number.isFinite(price) || price <= 0 || !message) {
@@ -188,7 +190,7 @@ export async function editQuote(_prev: EditQuoteState, formData: FormData): Prom
   await db.$transaction([
     db.quote.update({
       where: { id: quoteId },
-      data: { price, message, sharePhone },
+      data: { price, message, mode, sharePhone },
     }),
     db.tutorProfile.update({
       where: { id: profile.id },

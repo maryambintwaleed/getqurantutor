@@ -37,9 +37,22 @@ export default async function OpportunityDetail({
       <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-6">
         <div className="flex items-start justify-between">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-lg font-bold text-slate-900">{request.parentName}</span>
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                  request.mode === "Offline"
+                    ? "bg-amber-50 text-amber-800 border border-amber-200"
+                    : "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                }`}
+              >
+                <span
+                  className={`h-2 w-2 rounded-full ${
+                    request.mode === "Offline" ? "bg-amber-500" : "bg-emerald-500"
+                  }`}
+                />
+                {request.mode === "Offline" ? "Offline" : "Online"}
+              </span>
               {request.urgent && (
                 <span className="rounded-lg bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600">
                   Urgent
@@ -111,7 +124,7 @@ export default async function OpportunityDetail({
               Sending a quote costs <b>{QUOTE_FEE} credits</b>. Your balance:{" "}
               <b>{profile.balance} credits</b>. You keep 100% of your class fees.
             </p>
-            <QuoteForm requestId={request.id} />
+            <QuoteForm requestId={request.id} defaultMode={request.mode} />
           </>
         )}
       </div>

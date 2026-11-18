@@ -16,6 +16,7 @@ export async function createRequest(input: {
   parentName: string;
   email: string;
   city: string;
+  mode?: string;
   urgent: boolean;
 }) {
   const user = await getCurrentUser();
@@ -26,8 +27,7 @@ export async function createRequest(input: {
   const serviceRec = await db.service.findUnique({ where: { slug: input.slug } });
   if (!serviceRec || !serviceRec.active) throw new Error("Service not found");
 
-  // Quran classes are delivered online worldwide.
-  const mode = "Online";
+  const mode = input.mode === "Offline" ? "Offline" : "Online";
   const genderAnswer =
     input.answers.find((a) => a.question === TUTOR_GENDER_QUESTION)?.answer ?? "";
   const tutorGender = genderAnswer.startsWith("Female")
@@ -82,4 +82,23 @@ export async function acceptQuote(quoteId: string) {
   revalidatePath("/requests");
   revalidatePath("/pro", "layout");
   after(() => notifyTeacherOfWin(quoteId));
+}
+
+export async function updateRequestMode(requestId: string, nextMode: string) {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+
+  const req = await db.request.findUnique({ where: { id: requestId } });
+  if (!req || req.parentId !== user.id) throw new Error("Not allowed");
+
+  const mode = nextMode === "Offline" ? "Offline" : "Online";
+  await db.request.update({
+    where: { id: requestId },
+    data: { mode },
+  });
+
+  revalidatePath("/requests");
+  revalidatePath("/pro/opportunities");
+  revalidatePath(`/pro/opportunities/${requestId}`);
+  revalidatePath("/pro/quotes");
 }

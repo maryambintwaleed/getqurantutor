@@ -2,7 +2,7 @@
 
 import { useState, useActionState, useEffect } from "react";
 import Link from "next/link";
-import { FileText, Phone, Pencil, X, AlertCircle, CheckCircle2 } from "lucide-react";
+import { FileText, Phone, Pencil, X, AlertCircle } from "lucide-react";
 import { editQuote, type EditQuoteState } from "@/actions/tutor";
 import { QUOTE_EDIT_FEE } from "@/lib/services";
 import { timeAgo } from "@/lib/format";
@@ -23,6 +23,7 @@ export interface QuoteItem {
   id: string;
   price: number;
   message: string;
+  mode?: string;
   sharePhone: boolean;
   status: string;
   createdAt: Date | string;
@@ -44,6 +45,9 @@ export default function EditableQuoteCard({
   tutorBalance: number;
 }) {
   const [isEditing, setIsEditing] = useState(false);
+  const [editMode, setEditMode] = useState<"Online" | "Offline">(
+    quote.mode === "Offline" ? "Offline" : "Online"
+  );
   const [state, formAction, pending] = useActionState<EditQuoteState, FormData>(
     editQuote,
     {}
@@ -51,6 +55,7 @@ export default function EditableQuoteCard({
 
   const canEdit = quote.status === "SENT";
   const hasEnoughCredits = tutorBalance >= QUOTE_EDIT_FEE;
+  const quoteMode = quote.mode === "Offline" ? "Offline" : "Online";
 
   useEffect(() => {
     if (state.success) {
@@ -63,12 +68,28 @@ export default function EditableQuoteCard({
       {/* Top Header */}
       <div className="flex items-start justify-between gap-3">
         <div>
-          <span className="font-bold text-slate-900 text-base">
-            {quote.request.parentName}
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-bold text-slate-900 text-base">
+              {quote.request.parentName}
+            </span>
+            <span
+              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                quote.request.mode === "Offline"
+                  ? "bg-amber-50 text-amber-800 border border-amber-200"
+                  : "bg-emerald-50 text-emerald-800 border border-emerald-200"
+              }`}
+            >
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${
+                  quote.request.mode === "Offline" ? "bg-amber-500" : "bg-emerald-500"
+                }`}
+              />
+              Request: {quote.request.mode === "Offline" ? "Offline" : "Online"}
+            </span>
+          </div>
           <p className="mt-0.5 text-xs sm:text-sm font-medium text-slate-700">
             {quote.request.service.name}
-            {quote.request.city ? ` — ${quote.request.city}` : ""} — {quote.request.mode}
+            {quote.request.city ? ` — ${quote.request.city}` : ""}
           </p>
         </div>
         <div className="flex flex-col items-end gap-1.5 shrink-0">
@@ -87,9 +108,23 @@ export default function EditableQuoteCard({
 
       {/* Quote Meta & Edit Trigger */}
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600">
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
           <span className="flex items-center gap-1.5 font-bold text-slate-900 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
             <FileText size={15} className="text-brand-600" /> ${quote.price} / session
+          </span>
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold ${
+              quoteMode === "Offline"
+                ? "bg-amber-50 text-amber-800 border border-amber-200"
+                : "bg-emerald-50 text-emerald-800 border border-emerald-200"
+            }`}
+          >
+            <span
+              className={`h-2 w-2 rounded-full ${
+                quoteMode === "Offline" ? "bg-amber-500" : "bg-emerald-500"
+              }`}
+            />
+            {quoteMode}
           </span>
           {quote.sharePhone && (
             <span className="flex items-center gap-1 text-xs text-slate-500">
@@ -140,20 +175,59 @@ export default function EditableQuoteCard({
 
           <form action={formAction} className="space-y-4">
             <input type="hidden" name="quoteId" value={quote.id} />
+            <input type="hidden" name="mode" value={editMode} />
 
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-700">
-                Your price per session ($)
-              </label>
-              <input
-                name="price"
-                type="number"
-                min={1}
-                step="0.5"
-                defaultValue={quote.price}
-                required
-                className="w-36 rounded-xl border border-slate-200 px-3.5 py-2 text-sm outline-none focus:border-brand-500 bg-white"
-              />
+            <div className="flex flex-wrap items-end gap-4">
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-slate-700">
+                  Your price per session ($)
+                </label>
+                <input
+                  name="price"
+                  type="number"
+                  min={1}
+                  step="0.5"
+                  defaultValue={quote.price}
+                  required
+                  className="w-36 rounded-xl border border-slate-200 px-3.5 py-2 text-sm outline-none focus:border-brand-500 bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-slate-700">
+                  Class format sign
+                </label>
+                <div className="inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1">
+                  {(["Online", "Offline"] as const).map((option) => {
+                    const active = editMode === option;
+                    return (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => setEditMode(option)}
+                        className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                          active
+                            ? option === "Online"
+                              ? "bg-emerald-600 text-white shadow-xs"
+                              : "bg-amber-600 text-white shadow-xs"
+                            : "text-slate-600 hover:text-slate-900"
+                        }`}
+                      >
+                        <span
+                          className={`h-2 w-2 rounded-full ${
+                            active
+                              ? "bg-white"
+                              : option === "Online"
+                                ? "bg-emerald-500"
+                                : "bg-amber-500"
+                          }`}
+                        />
+                        {option}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
 
             <div>

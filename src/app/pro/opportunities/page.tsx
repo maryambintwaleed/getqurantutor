@@ -103,9 +103,22 @@ export default async function OpportunitiesPage({
               className="block rounded-2xl border border-slate-200 bg-white p-6 transition hover:border-brand-300 hover:shadow-md"
             >
               <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="font-semibold text-slate-900">{r.parentName}</span>
+                  <span
+                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                      r.mode === "Offline"
+                        ? "bg-amber-50 text-amber-800 border border-amber-200"
+                        : "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                    }`}
+                  >
+                    <span
+                      className={`h-2 w-2 rounded-full ${
+                        r.mode === "Offline" ? "bg-amber-500" : "bg-emerald-500"
+                      }`}
+                    />
+                    {r.mode === "Offline" ? "Offline" : "Online"}
+                  </span>
                 </div>
                 <span className="text-sm text-slate-400">{timeAgo(r.createdAt)}</span>
               </div>

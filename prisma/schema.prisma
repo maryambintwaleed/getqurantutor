@@ -113,6 +113,7 @@ model Quote {
   tutorId    String
   price      Float
   message    String
+  mode       String   @default("Online") // Online | Offline
   sharePhone Boolean  @default(false)
   status     String   @default("SENT") // SENT | WON | DECLINED
   createdAt  DateTime @default(now())

@@ -41,6 +41,7 @@ export default function Wizard({
   const [parentName, setParentName] = useState(initialUser?.name ?? "");
   const [email, setEmail] = useState(initialUser?.email ?? "");
   const [country, setCountry] = useState("");
+  const [mode, setMode] = useState<"Online" | "Offline">("Online");
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState("");
 
@@ -103,6 +104,7 @@ export default function Wizard({
         parentName: parentName.trim(),
         email: email.trim(),
         city: country, // the location column now holds a country picked from the list
+        mode,
         urgent: false,
       });
     });
@@ -203,6 +205,37 @@ export default function Wizard({
                 you as soon as a teacher replies.
               </p>
               <div className="mt-5 space-y-4">
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-600">
+                    Class Format (Online / Offline)
+                  </label>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {(["Online", "Offline"] as const).map((option) => {
+                      const active = mode === option;
+                      return (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() => setMode(option)}
+                          className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${
+                            active
+                              ? option === "Online"
+                                ? "border-emerald-500 bg-emerald-50 text-emerald-800 shadow-xs"
+                                : "border-amber-500 bg-amber-50 text-amber-800 shadow-xs"
+                              : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                          }`}
+                        >
+                          <span
+                            className={`h-2.5 w-2.5 rounded-full ${
+                              option === "Online" ? "bg-emerald-500" : "bg-amber-500"
+                            }`}
+                          />
+                          {option === "Online" ? "Online" : "Offline (In-person)"}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
                 <textarea
                   value={details}
                   onChange={(e) => setDetails(e.target.value)}

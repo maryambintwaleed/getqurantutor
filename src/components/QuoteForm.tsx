@@ -1,28 +1,75 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
 import { sendQuote, type QuoteState } from "@/actions/tutor";
 
-export default function QuoteForm({ requestId }: { requestId: string }) {
+export default function QuoteForm({
+  requestId,
+  defaultMode = "Online",
+}: {
+  requestId: string;
+  defaultMode?: string;
+}) {
   const [state, action, pending] = useActionState<QuoteState, FormData>(sendQuote, {});
+  const [mode, setMode] = useState<"Online" | "Offline">(
+    defaultMode === "Offline" ? "Offline" : "Online"
+  );
 
   return (
     <form action={action} className="mt-4 space-y-4">
       <input type="hidden" name="requestId" value={requestId} />
-      <div>
-        <label className="mb-1 block text-sm font-medium text-slate-700">
-          Your price per class ($)
-        </label>
-        <input
-          name="price"
-          type="number"
-          min={1}
-          step="0.5"
-          required
-          placeholder="e.g. 15"
-          className="w-40 rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-brand-500"
-        />
+      <input type="hidden" name="mode" value={mode} />
+      <div className="flex flex-wrap items-end gap-4">
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">
+            Your price per class ($)
+          </label>
+          <input
+            name="price"
+            type="number"
+            min={1}
+            step="0.5"
+            required
+            placeholder="e.g. 15"
+            className="w-40 rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-brand-500"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">
+            Class format sign
+          </label>
+          <div className="inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1">
+            {(["Online", "Offline"] as const).map((option) => {
+              const active = mode === option;
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => setMode(option)}
+                  className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs sm:text-sm font-semibold transition ${
+                    active
+                      ? option === "Online"
+                        ? "bg-emerald-600 text-white shadow-xs"
+                        : "bg-amber-600 text-white shadow-xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  <span
+                    className={`h-2 w-2 rounded-full ${
+                      active
+                        ? "bg-white"
+                        : option === "Online"
+                          ? "bg-emerald-500"
+                          : "bg-amber-500"
+                    }`}
+                  />
+                  {option}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">
