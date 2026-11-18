@@ -15,6 +15,7 @@ export async function register(_prev: AuthState, formData: FormData): Promise<Au
   const password = String(formData.get("password") ?? "");
   const role = formData.get("role") === "TUTOR" ? "TUTOR" : "PARENT";
   const gender = formData.get("gender") === "Female" ? "Female" : "Male";
+  const next = String(formData.get("next") ?? "");
 
   if (!name || !email || password.length < 6) {
     return { error: "Please fill all fields (password at least 6 characters)." };
@@ -39,6 +40,9 @@ export async function register(_prev: AuthState, formData: FormData): Promise<Au
   await createSession(user.id);
   if (role === "PARENT") {
     const claimed = await claimPendingRequests(user.id);
+    if (next && next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/pro") && !next.startsWith("/admin")) {
+      redirect(next);
+    }
     if (claimed > 0) redirect("/requests"); // straight to the quotes they signed up for
   }
   if (role === "TUTOR" && user.tutorProfile) {

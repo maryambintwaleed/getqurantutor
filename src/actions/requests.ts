@@ -5,7 +5,6 @@ import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
-import { rememberPendingRequest } from "@/lib/pending";
 import { notifyMatchingTeachers, notifyTeacherOfWin } from "@/lib/notify";
 import { isKnownCountry } from "@/lib/geo";
 import { GRADE_QUESTION_TEXT, TUTOR_GENDER_QUESTION } from "@/lib/services";
@@ -19,10 +18,13 @@ export async function createRequest(input: {
   city: string;
   urgent: boolean;
 }) {
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect(`/register?next=${encodeURIComponent(`/request/${input.slug}`)}`);
+  }
+
   const serviceRec = await db.service.findUnique({ where: { slug: input.slug } });
   if (!serviceRec || !serviceRec.active) throw new Error("Service not found");
-
-  const user = await getCurrentUser();
 
   // Quran classes are delivered online worldwide.
   const mode = "Online";
@@ -39,13 +41,13 @@ export async function createRequest(input: {
 
   const created = await db.request.create({
     data: {
-      parentId: user?.id ?? null,
-      parentName: input.parentName || user?.name || "A family",
+      parentId: user.id,
+      parentName: input.parentName || user.name || "A family",
       serviceId: serviceRec.id,
       answers: JSON.stringify(input.answers),
       grade: input.answers.find((a) => a.question === GRADE_QUESTION_TEXT)?.answer ?? "",
       tutorGender,
-      email: input.email.trim().toLowerCase(),
+      email: (input.email || user.email).trim().toLowerCase(),
       details: input.details,
       mode,
       // Picked from a list in the form; anything else is discarded rather than
@@ -54,8 +56,6 @@ export async function createRequest(input: {
       urgent,
     },
   });
-
-  if (!user) await rememberPendingRequest(created.id);
 
   // Sent after the response, so a slow mail provider never delays the family.
   after(() => notifyMatchingTeachers(created.id));

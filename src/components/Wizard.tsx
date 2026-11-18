@@ -24,9 +24,11 @@ export type WizardService = {
 export default function Wizard({
   service,
   preferredTeacher,
+  initialUser,
 }: {
   service: WizardService;
   preferredTeacher?: string;
+  initialUser?: { name: string; email: string };
 }) {
   const router = useRouter();
   const totalSteps = service.questions.length + 1; // + final details step
@@ -36,8 +38,8 @@ export default function Wizard({
   );
   const [multiSelection, setMultiSelection] = useState<string[]>([]);
   const [details, setDetails] = useState("");
-  const [parentName, setParentName] = useState("");
-  const [email, setEmail] = useState("");
+  const [parentName, setParentName] = useState(initialUser?.name ?? "");
+  const [email, setEmail] = useState(initialUser?.email ?? "");
   const [country, setCountry] = useState("");
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState("");

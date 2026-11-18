@@ -40,7 +40,10 @@ export function LoginForm({ next }: { next?: string }) {
       </button>
       <p className="text-center text-sm text-slate-500">
         New here?{" "}
-        <Link href="/register" className="font-semibold text-brand-600 hover:underline">
+        <Link
+          href={next ? `/register?next=${encodeURIComponent(next)}` : "/register"}
+          className="font-semibold text-brand-600 hover:underline"
+        >
           Create an account
         </Link>
       </p>
@@ -53,13 +56,20 @@ export function LoginForm({ next }: { next?: string }) {
   );
 }
 
-export function RegisterForm({ initialRole }: { initialRole: "PARENT" | "TUTOR" }) {
+export function RegisterForm({
+  initialRole,
+  next,
+}: {
+  initialRole: "PARENT" | "TUTOR";
+  next?: string;
+}) {
   const [state, action, pending] = useActionState<AuthState, FormData>(register, {});
   const [role, setRole] = useState<"PARENT" | "TUTOR">(initialRole);
 
   return (
     <form action={action} className="space-y-4">
       <input type="hidden" name="role" value={role} />
+      {next && <input type="hidden" name="next" value={next} />}
       <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1">
         {(["PARENT", "TUTOR"] as const).map((r) => (
           <button
@@ -145,7 +155,10 @@ export function RegisterForm({ initialRole }: { initialRole: "PARENT" | "TUTOR" 
       </p>
       <p className="text-center text-sm text-slate-500">
         Already have an account?{" "}
-        <Link href="/login" className="font-semibold text-brand-600 hover:underline">
+        <Link
+          href={next ? `/login?next=${encodeURIComponent(next)}` : "/login"}
+          className="font-semibold text-brand-600 hover:underline"
+        >
           Log in
         </Link>
       </p>
