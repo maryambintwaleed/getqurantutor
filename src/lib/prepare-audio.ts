@@ -3,8 +3,9 @@ import { MAX_AUDIO } from "@/lib/verification-limits";
 // Voice stays perfectly clear at these settings, and tajweed is still easy to
 // judge — but the file becomes small enough to send and to store.
 const TARGET_RATE = 16000;
-const FIRST_PASS_SECONDS = 90;
-const SECOND_PASS_SECONDS = 60;
+const FIRST_PASS_SECONDS = 75;
+const SECOND_PASS_SECONDS = 55;
+const SAFE_MP3_SLICE_BYTES = Math.floor(2.4 * 1024 * 1024); // ~2.4 MB fits comfortably under serverless payload limits
 
 function encodeWav(samples: Float32Array, sampleRate: number): Blob {
   const buffer = new ArrayBuffer(44 + samples.length * 2);
@@ -58,23 +59,48 @@ async function toMono(file: File, seconds: number): Promise<Blob> {
 }
 
 /**
- * Phone recorders often save uncompressed .wav, where a couple of minutes runs
- * to twenty megabytes. Rather than telling the teacher their recording is too
- * big — which they can do nothing useful about — convert it to a small mono
- * clip. A shorter sample is all a reviewer needs.
+ * Ensures any audio recording is small enough to upload reliably on mobile and
+ * desktop browsers without exceeding serverless body limits or crashing mobile
+ * browser tabs during AudioContext decoding.
  *
- * Returns the original file when it is already small enough, or when the
- * browser cannot decode it; the size check in the form then has the last word.
+ * - For MP3 files larger than MAX_AUDIO: MP3 is a frame-based stream, so slicing
+ *   the first ~2.4 MB keeps the first 1.5–2.5 minutes intact with zero memory spike.
+ * - For uncompressed WAV or other formats: downmixes the first 55–75 seconds to
+ *   16kHz mono PCM WAV.
  */
 export async function prepareAudio(file: File): Promise<File> {
-  if (file.size <= MAX_AUDIO) return file;
+  const isMp3 =
+    file.type === "audio/mpeg" ||
+    file.type === "audio/mp3" ||
+    file.name.toLowerCase().endsWith(".mp3");
 
-  try {
-    let blob = await toMono(file, FIRST_PASS_SECONDS);
-    if (blob.size > MAX_AUDIO) blob = await toMono(file, SECOND_PASS_SECONDS);
-    if (blob.size >= file.size) return file;
-    return new File([blob], file.name.replace(/\.[^.]+$/, "") + ".wav", { type: "audio/wav" });
-  } catch {
+  if (file.size <= SAFE_MP3_SLICE_BYTES) {
+    if (isMp3 && !file.type) {
+      return new File([file], file.name, { type: "audio/mpeg" });
+    }
     return file;
   }
+
+  // Fast, zero-memory-crash path for large MP3 files on mobile phones:
+  if (isMp3) {
+    const sliced = file.slice(0, SAFE_MP3_SLICE_BYTES, "audio/mpeg");
+    return new File([sliced], file.name, { type: "audio/mpeg" });
+  }
+
+  // Avoid running decodeAudioData on huge non-MP3 files (>25MB) that would OOM mobile tabs
+  if (file.size <= 25 * 1024 * 1024) {
+    try {
+      let blob = await toMono(file, FIRST_PASS_SECONDS);
+      if (blob.size > SAFE_MP3_SLICE_BYTES) blob = await toMono(file, SECOND_PASS_SECONDS);
+      if (blob.size <= MAX_AUDIO) {
+        return new File([blob], file.name.replace(/\.[^.]+$/, "") + ".wav", {
+          type: "audio/wav",
+        });
+      }
+    } catch {
+      // Fall through if Web Audio cannot decode the container
+    }
+  }
+
+  return file;
 }
