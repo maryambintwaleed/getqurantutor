@@ -242,18 +242,6 @@ export default async function AdminTutors() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-medium text-slate-700 mb-1">
-                      Upload / Replace Recitation Audio (Optional — MP3, M4A, WAV)
-                    </label>
-                    <input
-                      type="file"
-                      name="audio"
-                      accept="audio/*,.mp3,.m4a,.wav,.ogg"
-                      className="block w-full text-xs text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-brand-700 hover:file:bg-brand-100"
-                    />
-                  </div>
-
                   <div className="flex justify-end">
                     <button className="rounded-lg bg-brand-600 px-4 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-brand-700">
                       Save Profile Changes

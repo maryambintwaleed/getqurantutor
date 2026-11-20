@@ -3,9 +3,9 @@ import { MAX_AUDIO } from "@/lib/verification-limits";
 // Voice stays perfectly clear at these settings, and tajweed is still easy to
 // judge — but the file becomes small enough to send and to store.
 const TARGET_RATE = 16000;
-const FIRST_PASS_SECONDS = 75;
-const SECOND_PASS_SECONDS = 55;
-const SAFE_MP3_SLICE_BYTES = Math.floor(2.4 * 1024 * 1024); // ~2.4 MB fits comfortably under serverless payload limits
+const FIRST_PASS_SECONDS = 60;
+const SECOND_PASS_SECONDS = 45;
+const SAFE_MP3_SLICE_BYTES = 2 * 1024 * 1024; // 2.0 MB so audio + ID photo never exceed the 4MB total limit
 
 function encodeWav(samples: Float32Array, sampleRate: number): Blob {
   const buffer = new ArrayBuffer(44 + samples.length * 2);
@@ -63,10 +63,10 @@ async function toMono(file: File, seconds: number): Promise<Blob> {
  * desktop browsers without exceeding serverless body limits or crashing mobile
  * browser tabs during AudioContext decoding.
  *
- * - For MP3 files larger than MAX_AUDIO: MP3 is a frame-based stream, so slicing
- *   the first ~2.4 MB keeps the first 1.5–2.5 minutes intact with zero memory spike.
- * - For uncompressed WAV or other formats: downmixes the first 55–75 seconds to
- *   16kHz mono PCM WAV.
+ * - For MP3 files larger than 2MB: MP3 is a frame-based stream, so slicing
+ *   the first 2MB keeps the first ~1.5–2 minutes intact with zero memory spike.
+ * - For uncompressed WAV or other formats: downmixes the first 45–60 seconds to
+ *   16kHz mono PCM WAV (<1.9MB).
  */
 export async function prepareAudio(file: File): Promise<File> {
   const isMp3 =

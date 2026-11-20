@@ -179,7 +179,6 @@ export async function updateTeacherProfile(formData: FormData) {
   const ijazah = formData.get("ijazah") === "on";
   const hafiz = formData.get("hafiz") === "on";
   const visible = formData.get("visible") === "on";
-  const audio = formData.get("audio") as File | null;
 
   if (!tutorId) return;
 
@@ -188,17 +187,6 @@ export async function updateTeacherProfile(formData: FormData) {
     include: { user: true },
   });
   if (!tutor) return;
-
-  let audioType: string | undefined;
-  if (audio && audio.size > 0) {
-    const bytes = new Uint8Array(await audio.arrayBuffer()).slice();
-    audioType = audio.type && audio.type.startsWith("audio/") ? audio.type : "audio/mpeg";
-    await db.recitation.upsert({
-      where: { tutorId },
-      update: { data: bytes, contentType: audioType },
-      create: { tutorId, data: bytes, contentType: audioType },
-    });
-  }
 
   await db.$transaction([
     ...(name && name !== tutor.user.name
@@ -214,7 +202,6 @@ export async function updateTeacherProfile(formData: FormData) {
         ijazah,
         hafiz,
         visible,
-        ...(audioType ? { audioType } : {}),
         ...(status ? { status, ...(status === "APPROVED" ? { reviewedAt: new Date() } : {}) } : {}),
       },
     }),
